@@ -1,26 +1,26 @@
-# Usamos PHP 7.4 con Apache
+# Usamos PHP 7.4 estable con Apache
 FROM php:7.4-apache
 
-# 1. Instalamos dependencias del sistema necesarias para compilar Phalcon
+# Instalamos dependencias del sistema y la extensión zip
 RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     unzip \
-    git \
     && docker-php-ext-install zip
 
-# 2. Instalamos PSR (Requisito obligatorio para Phalcon 4+)
-RUN pecl install psr && docker-php-ext-enable psr
+# Instalamos PSR y Phalcon via PECL
+# Usamos versiones específicas que sabemos que funcionan bien en PHP 7.4
+RUN pecl install psr && docker-php-ext-enable psr \
+    && pecl install phalcon-4.1.2 && docker-php-ext-enable phalcon
 
-# 3. Instalamos Phalcon mediante PECL (esto asegura que encuentre la versión correcta)
-RUN pecl install phalcon-4.1.2 && docker-php-ext-enable phalcon
-
-# 4. Habilitamos mod_rewrite para que tus rutas de Phalcon funcionen
+# Habilitamos mod_rewrite (vital para las rutas de Phalcon)
 RUN a2enmod rewrite
 
-# 5. Copiamos tu proyecto
+# Copiamos los archivos de tu proyecto
 COPY . /var/www/html/
 
-# 6. Permisos para la caché y puerto
+# Ajustamos permisos para que Apache pueda escribir en la caché
 RUN chown -R www-data:www-data /var/www/html/cache
+
+# Exponemos el puerto estándar
 EXPOSE 80

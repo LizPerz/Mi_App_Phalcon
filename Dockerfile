@@ -9,10 +9,12 @@ RUN apt-get update && apt-get install -y \
 RUN pecl install psr && docker-php-ext-enable psr \
     && pecl install phalcon-4.1.2 && docker-php-ext-enable phalcon
 
-# SOLUCIÓN DEFINITIVA AL MPM: 
-# Borramos cualquier configuración que cargue módulos extra y forzamos prefork
+# SOLUCIÓN RADICAL AL MPM: 
+# 1. Borramos todas las configuraciones de MPM activas para que no haya duplicados
+# 2. Activamos manualmente solo el que necesitamos (prefork) y el rewrite
 RUN rm -f /etc/apache2/mods-enabled/mpm_* \
-    && a2enmod mpm_prefork rewrite
+    && ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
+    && a2enmod rewrite
 
 COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html

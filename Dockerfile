@@ -1,22 +1,21 @@
 FROM php:7.4-apache
 
-# 1. Instalamos dependencias y zip
+# Instalamos dependencias y el driver de MySQL para que tu BD funcione
 RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     unzip \
-    && docker-php-ext-install zip
+    && docker-php-ext-install zip pdo pdo_mysql
 
-# 2. Instalamos PSR y Phalcon (esto tarda un poquito, es normal)
+# Instalamos Phalcon (v4.1.2 es la más estable para PHP 7.4)
 RUN pecl install psr && docker-php-ext-enable psr \
     && pecl install phalcon-4.1.2 && docker-php-ext-enable phalcon
 
-# 3. SOLUCIÓN AL ERROR MPM: Desactivamos el módulo conflictivo y activamos el correcto
-RUN a2dismod mpm_event && a2enmod mpm_prefork && a2enmod rewrite
+# ESTA LÍNEA ES LA MAGIA: Desactiva TODO lo que estorba y activa solo lo necesario
+RUN a2dismod mpm_event mpm_worker || true && a2enmod mpm_prefork rewrite
 
-# 4. Copiamos tu proyecto
+# Copiamos archivos y damos permisos
 COPY . /var/www/html/
+RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html/cache
 
-# 5. Permisos finales
-RUN chown -R www-data:www-data /var/www/html
 EXPOSE 80

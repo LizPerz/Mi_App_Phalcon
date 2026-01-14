@@ -1,23 +1,24 @@
 FROM php:7.2-apache
 
-# Cambiamos los repositorios a los archivos históricos de Debian para evitar el error 404
+# 1. Corregimos los repositorios para que Debian no de error 404
 RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
     sed -i 's|security.debian.org/debian-security|archive.debian.org/debian-security|g' /etc/apt/sources.list && \
     sed -i '/stretch-updates/d' /etc/apt/sources.list
 
-# Instalamos dependencias para MySQL y Phalcon
+# 2. Instalamos dependencias necesarias y extensiones de MySQL
 RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip \
+    libzip-dev zip unzip git \
     && docker-php-ext-install pdo pdo_mysql
 
-# Instalamos Phalcon 3.4.x
-RUN curl -s https://packagecloud.io/install/repositories/phalcon/stable/script.deb.sh | bash \
-    && apt-get install -y php7.2-phalcon3
+# 3. Instalamos Phalcon 3.4.5 (La versión exacta que necesitas)
+RUN git clone --depth=1 -b v3.4.5 https://github.com/phalcon/cphalcon.git /tmp/cphalcon && \
+    cd /tmp/cphalcon/build && \
+    ./install && \
+    docker-php-ext-enable phalcon && \
+    rm -rf /tmp/cphalcon
 
-# Activamos el módulo de reescritura
+# 4. Activamos el módulo de rutas y configuramos el proyecto
 RUN a2enmod rewrite
-
-# Copiamos tu proyecto
 COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html
 

@@ -19,4 +19,5 @@ RUN rm -f /etc/apache2/mods-enabled/mpm_* \
 COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html
 
+RUN mkdir -p /var/www/html/cache && chmod -R 777 /var/www/html/cache
 EXPOSE 80

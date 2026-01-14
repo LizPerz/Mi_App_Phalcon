@@ -8,12 +8,12 @@ defined('APP_PATH') || define('APP_PATH', BASE_PATH . '/app');
 
 return new \Phalcon\Config([
 'database' => [
-        'adapter'     => 'Mysql',
-        'host'        => getenv('DB_HOST') ?: 'localhost',
-        'username'    => getenv('DB_USERNAME') ?: 'root',
-        'password'    => getenv('DB_PASSWORD') ?: '',
-        'dbname'      => getenv('DB_NAME') ?: 'universidad',
-        'port'        => getenv('DB_PORT') ?: 3306,
+      'adapter'     => 'Mysql',
+        'host'        => 'mysql.railway.internal', // El valor de MYSQLHOST
+        'username'    => 'root', // El valor de MYSQLUSER
+        'password'    => 'zjiRkKScybNSlQhOQHdZkOhYcsYJcEJN', // El valor de MYSQLPASSWORD
+        'dbname'      => 'railway', 
+        'port'        => 3306,
         'charset'     => 'utf8',
     ],
     'application' => [

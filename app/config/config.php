@@ -13,6 +13,7 @@ return new \Phalcon\Config([
         'username'    => getenv('DB_USERNAME') ?: 'root',
         'password'    => getenv('DB_PASSWORD') ?: '',
         'dbname'      => getenv('DB_NAME') ?: 'universidad',
+        'port'        => getenv('DB_PORT') ?: 3306,
         'charset'     => 'utf8',
     ],
     'application' => [

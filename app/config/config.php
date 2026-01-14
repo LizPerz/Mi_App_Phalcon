@@ -24,8 +24,7 @@ return new \Phalcon\Config([
         'pluginsDir'     => APP_PATH . '/plugins/',
         'libraryDir'     => APP_PATH . '/library/',
         'cacheDir'       => BASE_PATH . '/cache/',
-
-        // Esto detecta automáticamente si estás en la raíz del servidor
-        'baseUri'        => getenv('BASE_URI') ?: '/',
+        'baseUri' => $_SERVER['HTTP_HOST'] === 'localhost' ? '/Mi_App/' : '/',
+      
     ]
 ]);

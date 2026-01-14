@@ -3,11 +3,13 @@
 $loader = new \Phalcon\Loader();
 
 /**
- * We're a registering a set of directories taken from the configuration file
+ * Registramos tanto directorios como Namespaces para que VS Code y Phalcon se entiendan
  */
-$loader->registerDirs(
-    [
-        $config->application->controllersDir,
-        $config->application->modelsDir
-    ]
-)->register();
+$loader->registerNamespaces([
+    'App\Models'      => $config->application->modelsDir,
+    'App\Controllers' => $config->application->controllersDir,
+])->registerDirs([
+    $config->application->controllersDir,
+    $config->application->modelsDir
+])->register();
+

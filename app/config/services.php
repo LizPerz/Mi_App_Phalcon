@@ -8,6 +8,9 @@ use Phalcon\Mvc\Model\Metadata\Memory as MetaDataAdapter;
 use Phalcon\Session\Adapter\Files as SessionAdapter;
 use Phalcon\Flash\Direct as Flash;
 
+// NUEVOS USES PARA ERRORES
+use Phalcon\Mvc\Dispatcher;
+use Phalcon\Events\Manager as EventsManager;
 /**
  * Shared configuration service
  */
@@ -109,4 +112,38 @@ $di->setShared('session', function () {
     $session->start();
 
     return $session;
+});
+
+
+/**
+ * Dispatcher con manejo de errores 404 y 500
+ */
+$di->setShared('dispatcher', function () {
+    $eventsManager = new EventsManager();
+
+    // Capturar excepciones antes de que crashee la app
+    $eventsManager->attach("dispatch:beforeException", function ($event, $dispatcher, $exception) {
+        
+        // Manejar errores de "No encontrado" (404)
+        switch ($exception->getCode()) {
+            case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
+            case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
+                $dispatcher->forward([
+                    'controller' => 'errors',
+                    'action'     => 'show404'
+                ]);
+                return false;
+        }
+
+        // Manejar errores internos del servidor (500)
+        $dispatcher->forward([
+            'controller' => 'errors',
+            'action'     => 'show500'
+        ]);
+        return false;
+    });
+
+    $dispatcher = new Dispatcher();
+    $dispatcher->setEventsManager($eventsManager);
+    return $dispatcher;
 });

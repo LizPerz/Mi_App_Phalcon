@@ -1,0 +1,44 @@
+<style>
+    html, body { margin: 0; padding: 0; }
+</style>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="w-full min-h-screen bg-fixed bg-center bg-cover flex flex-col items-center p-6 md:p-10" 
+     style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');">
+    
+    <div class="w-full max-w-4xl bg-black bg-opacity-60 backdrop-blur-xl border border-white border-opacity-20 rounded-3xl shadow-2xl p-8">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <h1 class="text-3xl font-black text-white italic">🚀 Alumnos en Órbita</h1>
+            <a href="<?= $this->url->get('hola/index') ?>" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-full transition shadow-lg">
+                + Nuevo
+            </a>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-white border-opacity-10">
+            <table class="w-full text-left text-white border-collapse">
+                <thead class="bg-white bg-opacity-10">
+                    <tr>
+                        <th class="p-4 text-blue-400 uppercase text-xs tracking-widest">ID</th>
+                        <th class="p-4 uppercase text-xs tracking-widest">Nombre</th>
+                        <th class="p-4 text-right uppercase text-xs tracking-widest">Registro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (isset($alumnos) && count($alumnos) > 0): ?>
+                        <?php foreach ($alumnos as $alumno): ?>
+                        <tr class="border-b border-white border-opacity-5 hover:bg-white hover:bg-opacity-5 transition">
+                            <td class="p-4 font-mono">#<?= $alumno->id ?></td>
+                            <td class="p-4 font-bold"><?= $alumno->nombre ?></td>
+                            <td class="p-4 text-right text-sm opacity-60"><?= $alumno->fecha_registro ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="3" class="p-10 text-center text-gray-400 italic">No hay tripulantes registrados todavía.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

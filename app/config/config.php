@@ -6,12 +6,12 @@ defined('APP_PATH') || define('APP_PATH', BASE_PATH . '/app');
 return new \Phalcon\Config([
     'database' => [
         'adapter'     => 'Mysql',
-        // Si detecta la variable de Render/Railway la usa, si no, usa localhost
-        'host'        => getenv('DB_HOST') ?: 'localhost',
-        'username'    => getenv('DB_USERNAME') ?: 'root',
-        'password'    => getenv('DB_PASSWORD') ?: '',
-        'dbname'      => getenv('DB_NAME') ?: 'railway',
-        'port'        => getenv('DB_PORT') ?: 3306,
+        // Usa la variable de Render, si no existe (local), usa TiDB directamente
+        'host'        => getenv('DB_HOST') ?: 'gateway01.us-east-1.prod.aws.tidbcloud.com',
+        'username'    => getenv('DB_USERNAME') ?: '3ezqrRxoc1nCBuQ.root',
+        'password'    => getenv('DB_PASSWORD') ?: 'i4Vx4NM2nA3ONLCJ',
+        'dbname'      => getenv('DB_NAME') ?: 'test',
+        'port'        => getenv('DB_PORT') ?: 4000,
         'charset'     => 'utf8',
     ],
     
@@ -25,6 +25,5 @@ return new \Phalcon\Config([
         'libraryDir'     => APP_PATH . '/library/',
         'cacheDir'       => BASE_PATH . '/cache/',
         'baseUri' => $_SERVER['HTTP_HOST'] === 'localhost' ? '/Mi_App/' : '/',
-      
     ]
 ]);

@@ -28,14 +28,14 @@ class HolaController extends ControllerBase
 
             $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$recaptchaResponse}");
             $responseData = json_decode($verify);
-// COMENTA ESTE BLOQUE TEMPORALMENTE
-            /*if (!$responseData->success) {
+            
+            if (!$responseData->success) {
                 // Si el captcha falla, mandamos un mensaje de error y regresamos
                 $this->flash->error("Por favor, confirma que no eres un robot.");
                 
                 // USAMOS $this->url->get para que la ruta sea dinámica (Local o Nube)
                 return $this->response->redirect($this->url->get('hola/index'));
-            }*/
+            }
 
             // 3. BASE DE DATOS: Si el captcha es correcto, guardamos el nombre
             $nombre = $this->request->getPost('nombre_completo');

@@ -66,6 +66,9 @@ $di->setShared('view', function () {
 /**
  * Database connection is created based in the parameters defined in the configuration file
  */
+/**
+ * Database connection is created based in the parameters defined in the configuration file
+ */
 $di->setShared('db', function () {
     $config = $this->getConfig();
 
@@ -75,24 +78,30 @@ $di->setShared('db', function () {
         'username' => $config->database->username,
         'password' => $config->database->password,
         'dbname'   => $config->database->dbname,
-        'port'     => $config->database->port, // AÑADIMOS EL PUERTO (4000)
+        'port'     => $config->database->port,
         'charset'  => $config->database->charset
     ];
 
-    // ESTO ES LO QUE SOLUCIONA EL ERROR 500 EN TIDB
-    $params['options'] = [
-        PDO::MYSQL_ATTR_SSL_CA => true,
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ];
+    // Solo activa SSL si NO estamos en localhost (para TiDB en la nube)
+    if ($_SERVER['HTTP_HOST'] !== 'localhost' && $_SERVER['SERVER_NAME'] !== 'localhost') {
+        $params['options'] = [
+            PDO::MYSQL_ATTR_SSL_CA => true,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ];
+    } else {
+        // Para XAMPP local
+        $params['options'] = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ];
+    }
 
     if ($config->database->adapter == 'Postgresql') {
         unset($params['charset']);
     }
 
-    $connection = new $class($params);
-
-    return $connection;
+    return new $class($params);
 });
+
 
 /**
  * If the configuration specify the use of metadata adapter use it or use memory otherwise

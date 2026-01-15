@@ -5,21 +5,15 @@ defined('APP_PATH') || define('APP_PATH', BASE_PATH . '/app');
 
 return new \Phalcon\Config([
     'database' => [
-        'adapter'     => 'Mysql',
-        // Usa la variable de Render, si no existe (local), usa TiDB directamente
-        'host'        => getenv('DB_HOST') ?: 'gateway01.us-east-1.prod.aws.tidbcloud.com',
-        'username'    => getenv('DB_USERNAME') ?: '3ezqrRxoc1nCBuQ.root',
-        'password'    => getenv('DB_PASSWORD') ?: 'i4Vx4NM2nA3ONLCJ',
-        'dbname'      => getenv('DB_NAME') ?: 'test',
-        'port'        => getenv('DB_PORT') ?: 4000,
-        'charset'     => 'utf8',
-
-        // ESTA ES LA LLAVE QUE FALTA PARA TIDB:
-    'options' => [
-        PDO::MYSQL_ATTR_SSL_CA => true,
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]
-    ],
+    'adapter'     => 'Mysql',
+    // Si hay variables de entorno (Render), úsalas. Si no, usa XAMPP local.
+    'host'        => getenv('DB_HOST') ?: 'localhost',
+    'username'    => getenv('DB_USERNAME') ?: 'root',
+    'password'    => getenv('DB_PASSWORD') ?: '',
+    'dbname'      => getenv('DB_NAME') ?: 'universidad',
+    'port'        => getenv('DB_PORT') ?: 3306,
+    'charset'     => 'utf8',
+],
     
     'application' => [
         'appDir'         => APP_PATH . '/',

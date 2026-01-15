@@ -69,6 +69,9 @@ $di->setShared('view', function () {
 /**
  * Database connection is created based in the parameters defined in the configuration file
  */
+/**
+ * Database connection is created based in the parameters defined in the configuration file
+ */
 $di->setShared('db', function () {
     $config = $this->getConfig();
 
@@ -82,21 +85,18 @@ $di->setShared('db', function () {
         'charset'  => $config->database->charset
     ];
 
-    // Solo activa SSL si NO estamos en localhost (para TiDB en la nube)
-    if ($_SERVER['HTTP_HOST'] !== 'localhost' && $_SERVER['SERVER_NAME'] !== 'localhost') {
+    // Detectamos si es local para decidir si usar SSL (necesario para TiDB en la nube)
+    $isLocal = ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['SERVER_ADDR'] === '127.0.0.1');
+
+    if (!$isLocal) {
         $params['options'] = [
             PDO::MYSQL_ATTR_SSL_CA => true,
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ];
     } else {
-        // Para XAMPP local
         $params['options'] = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ];
-    }
-
-    if ($config->database->adapter == 'Postgresql') {
-        unset($params['charset']);
     }
 
     return new $class($params);

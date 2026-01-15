@@ -63,6 +63,9 @@ $di->setShared('view', function () {
 /**
  * Database connection is created based in the parameters defined in the configuration file
  */
+/**
+ * Database connection is created based in the parameters defined in the configuration file
+ */
 $di->setShared('db', function () {
     $config = $this->getConfig();
 
@@ -72,7 +75,14 @@ $di->setShared('db', function () {
         'username' => $config->database->username,
         'password' => $config->database->password,
         'dbname'   => $config->database->dbname,
+        'port'     => $config->database->port, // AÑADIMOS EL PUERTO (4000)
         'charset'  => $config->database->charset
+    ];
+
+    // ESTO ES LO QUE SOLUCIONA EL ERROR 500 EN TIDB
+    $params['options'] = [
+        PDO::MYSQL_ATTR_SSL_CA => true,
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ];
 
     if ($config->database->adapter == 'Postgresql') {
@@ -83,7 +93,6 @@ $di->setShared('db', function () {
 
     return $connection;
 });
-
 
 /**
  * If the configuration specify the use of metadata adapter use it or use memory otherwise

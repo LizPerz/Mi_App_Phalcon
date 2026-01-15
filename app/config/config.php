@@ -13,6 +13,12 @@ return new \Phalcon\Config([
         'dbname'      => getenv('DB_NAME') ?: 'test',
         'port'        => getenv('DB_PORT') ?: 4000,
         'charset'     => 'utf8',
+
+        // ESTA ES LA LLAVE QUE FALTA PARA TIDB:
+    'options' => [
+        PDO::MYSQL_ATTR_SSL_CA => true,
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    ]
     ],
     
     'application' => [

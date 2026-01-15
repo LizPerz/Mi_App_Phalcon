@@ -10,7 +10,7 @@ return new \Phalcon\Config([
         'host'        => getenv('DB_HOST') ?: 'localhost',
         'username'    => getenv('DB_USERNAME') ?: 'root',
         'password'    => getenv('DB_PASSWORD') ?: '',
-        'dbname'      => getenv('DB_NAME') ?: 'universidad',
+        'dbname'      => getenv('DB_NAME') ?: 'railway',
         'port'        => getenv('DB_PORT') ?: 3306,
         'charset'     => 'utf8',
     ],

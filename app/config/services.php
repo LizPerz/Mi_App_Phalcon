@@ -83,10 +83,25 @@ $di->setShared('db', function () {
         'dbname'   => $config->database->dbname,
         'port'     => $config->database->port,
         'charset'  => $config->database->charset
-    ];
 
+    ];
+// SI NO ES LOCALHOST, ACTIVAMOS SSL (Para TiDB en Render)
+    if ($_SERVER['HTTP_HOST'] !== 'localhost' && $_SERVER['SERVER_ADDR'] !== '127.0.0.1') {
+        $params['options'] = [
+            PDO::MYSQL_ATTR_SSL_CA => true,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ];
+    } else {
+        // EN TU PC NO USAMOS SSL PARA EVITAR EL ERROR 500
+        $params['options'] = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ];
+    }
+
+    return new $class($params);
+});
     // Detectamos si es local para decidir si usar SSL (necesario para TiDB en la nube)
-    $isLocal = ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['SERVER_ADDR'] === '127.0.0.1');
+    /*$isLocal = ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['SERVER_ADDR'] === '127.0.0.1');
 
     if (!$isLocal) {
         $params['options'] = [
@@ -100,7 +115,7 @@ $di->setShared('db', function () {
     }
 
     return new $class($params);
-});
+});*/
 
 
 /**

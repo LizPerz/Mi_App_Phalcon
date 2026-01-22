@@ -1,4 +1,9 @@
 {
+    "require": {
+        "php": ">=7.4",
+        "ext-pdo_pgsql": "*",
+        "ext-pgsql": "*"
+    },
     "require-dev": {
         "phalcon/devtools": "^3.4"
     }

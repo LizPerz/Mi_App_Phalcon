@@ -41,25 +41,23 @@ $di->setShared('view', function () {
     return $view;
 });
 
-// SERVICIO DE BASE DE DATOS UNIFICADO
+// SERVICIO DE BASE DE DATOS CENTRALIZADO (PostgreSQL)
 $di->setShared('db', function () {
     $config = $this->getConfig();
-    $class = 'Phalcon\Db\Adapter\Pdo\\' . $config->database->adapter;
     
-    $params = [
+    return new \Phalcon\Db\Adapter\Pdo\Postgresql([
         'host'     => $config->database->host,
         'username' => $config->database->username,
         'password' => $config->database->password,
         'dbname'   => $config->database->dbname,
-        'port'     => $config->database->port,
-    ];
-
-    // Solo MySQL (Local) usa charset en el array de conexión
-    if ($config->database->adapter == 'Mysql') {
-        $params['charset'] = $config->database->charset;
-    }
-
-    return new $class($params);
+        'port'     => 5432,
+        'options'  => [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            // 1001 es el código interno para activar SSL (PDO::PGSQL_ATTR_SSL_MODE)
+            1001 => 'require', 
+            PDO::ATTR_TIMEOUT => 15
+        ]
+    ]);
 });
 
 $di->setShared('modelsMetadata', function () {
@@ -84,6 +82,12 @@ $di->setShared('session', function () {
 $di->setShared('dispatcher', function () {
     $eventsManager = new EventsManager();
     $eventsManager->attach("dispatch:beforeException", function ($event, $dispatcher, $exception) {
+        // En local, queremos ver el error real en lugar del 500 genérico
+        if ($_SERVER['HTTP_HOST'] === 'localhost') {
+            echo "<h1>Error detectado:</h1><pre>" . $exception->getMessage() . "</pre>";
+            exit;
+        }
+
         switch ($exception->getCode()) {
             case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
             case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:

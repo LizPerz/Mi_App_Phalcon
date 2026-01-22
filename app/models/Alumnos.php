@@ -11,6 +11,7 @@ class Alumnos extends Model
     public function initialize()
     {
         // Esto le dice a Phalcon que use la tabla 'alumnos'
+        $this->setSchema("public");
         $this->setSource("alumnos");
     }
 }

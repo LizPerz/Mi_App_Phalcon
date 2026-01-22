@@ -1,7 +1,7 @@
 <?php
 use Phalcon\Di\FactoryDefault;
 error_reporting(E_ALL);
-
+date_default_timezone_set('America/Mexico_City');
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/app');
 

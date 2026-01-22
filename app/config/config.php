@@ -5,26 +5,20 @@ defined('APP_PATH') || define('APP_PATH', BASE_PATH . '/app');
 
 return new \Phalcon\Config([
     'database' => [
-        // Si detecta DB_HOST en Render, usa Postgresql, si no, Mysql (Local)
-        'adapter'     => getenv('DB_HOST') ? 'Postgresql' : 'Mysql', 
-        'host'        => getenv('DB_HOST') ?: 'localhost',
-        'username'    => getenv('DB_USERNAME') ?: 'root',
-        'password'    => getenv('DB_PASSWORD') ?: '',
-        'dbname'      => getenv('DB_NAME') ?: 'universidad',
-        // Si es local usa 3306, si es Render usa el puerto de la variable
-        'port'        => getenv('DB_PORT') ?: 3306, 
-        'charset'     => 'utf8',
+        'adapter'     => 'Postgresql', 
+        'host'        => getenv('DB_HOST') ?: 'dpg-d5ontvkoud1c739cae20-a.virginia-postgres.render.com',
+        'username'    => getenv('DB_USERNAME') ?: 'lizeth',
+        'password'    => getenv('DB_PASSWORD') ?: 'rT29EL2l9FQ9wxbla0QaJazwvAuNVSJg',
+        'dbname'      => 'universidad_mjo6',
+        'port'        => getenv('DB_PORT') ?: 5432,
     ],
-    
     'application' => [
         'appDir'         => APP_PATH . '/',
         'controllersDir' => APP_PATH . '/controllers/',
         'modelsDir'      => APP_PATH . '/models/',
-        'migrationsDir'  => APP_PATH . '/migrations/',
         'viewsDir'       => APP_PATH . '/views/',
-        'pluginsDir'     => APP_PATH . '/plugins/',
-        'libraryDir'     => APP_PATH . '/library/',
         'cacheDir'       => BASE_PATH . '/cache/',
-        'baseUri' => $_SERVER['HTTP_HOST'] === 'localhost' ? '/Mi_App/' : '/',
+        // Ajuste: Eliminamos la barra final en localhost para evitar duplicados
+        'baseUri'        => $_SERVER['HTTP_HOST'] === 'localhost' ? '/Mi_App/' : '/',
     ]
 ]);

@@ -7,9 +7,14 @@
      style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');">
     
     <div class="w-full max-w-4xl bg-black bg-opacity-60 backdrop-blur-xl border border-white border-opacity-20 rounded-3xl shadow-2xl p-8">
+        
+        <div class="mb-4 text-white font-bold">
+            <?php echo $this->flash->output(); ?>
+        </div>
+
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <h1 class="text-3xl font-black text-white italic">🚀 Alumnos en Órbita</h1>
-            <a href="<?= $this->url->get('hola/index') ?>" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-full transition shadow-lg">
+            <a href="<?php echo $this->url->get('hola/index'); ?>" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-full transition shadow-lg">
                 + Nuevo
             </a>
         </div>
@@ -27,9 +32,9 @@
                     <?php if (isset($alumnos) && count($alumnos) > 0): ?>
                         <?php foreach ($alumnos as $alumno): ?>
                         <tr class="border-b border-white border-opacity-5 hover:bg-white hover:bg-opacity-5 transition">
-                            <td class="p-4 font-mono">#<?= $alumno->id ?></td>
-                            <td class="p-4 font-bold"><?= $alumno->nombre ?></td>
-                            <td class="p-4 text-right text-sm opacity-60"><?= $alumno->fecha_registro ?></td>
+                            <td class="p-4 font-mono">#<?php echo $alumno->id; ?></td>
+                            <td class="p-4 font-bold"><?php echo $alumno->nombre; ?></td>
+                            <td class="p-4 text-right text-sm opacity-60"><?php echo $alumno->fecha_registro; ?></td>
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>

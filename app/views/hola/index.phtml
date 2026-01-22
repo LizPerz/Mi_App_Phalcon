@@ -1,5 +1,4 @@
 <style>
-    /* Eliminamos márgenes para que no haya franjas blancas */
     html, body {
         margin: 0 !important;
         padding: 0 !important;
@@ -17,7 +16,7 @@
     <div class="bg-black bg-opacity-40 backdrop-blur-md border border-white border-opacity-20 p-8 md:p-12 rounded-3xl shadow-2xl text-center max-w-lg mx-4">
         
         <div class="mb-4 text-white font-bold">
-            <?php $this->flash->output(); ?>
+            <?php echo $this->flash->output(); ?>
         </div>
 
         <div class="mb-6">
@@ -31,7 +30,7 @@
         </h1>
         <p class="text-blue-100 mb-6">Ingresa tu nombre para la Base de Datos</p>
 
-        <form action="<?= $this->url->get('hola/guardar') ?>" method="POST" class="space-y-4">
+        <form action="<?php echo $this->url->get('hola/guardar'); ?>" method="POST" class="space-y-4">
             
             <input type="text" name="nombre_completo" required
                 placeholder="Escribe tu nombre aquí..." 
@@ -48,7 +47,7 @@
         </form>
 
         <div class="mt-6">
-            <a href="<?= $this->url->get('hola/lista') ?>" class="text-blue-200 hover:text-white text-sm underline">
+            <a href="<?php echo $this->url->get('hola/lista'); ?>" class="text-blue-200 hover:text-white text-sm underline">
                 Ver lista existente
             </a>
         </div>

@@ -14,6 +14,7 @@ class HolaController extends ControllerBase
     public function indexAction()
     {
         // Solo muestra el formulario
+        $this->view->imagenes_db = Carrusel::find();
     }
 
     public function guardarAction()
@@ -89,5 +90,27 @@ class HolaController extends ControllerBase
         }
 
         return $this->response->redirect('hola/lista');
+    }
+
+    
+    public function formularioAction() { /* Solo muestra la vista */ }
+
+    // Rutas de prueba para errores
+    public function error404Action() 
+    {
+        // Forzamos el despacho a una ruta inexistente
+        return $this->dispatcher->forward([
+            'controller' => 'errors',
+            'action'     => 'show404'
+        ]);
+    }
+
+    public function error500Action()
+    {
+        // Forzamos el despacho a la vista del error 500
+        return $this->dispatcher->forward([
+            'controller' => 'errors',
+            'action'     => 'show500'
+        ]);
     }
 }

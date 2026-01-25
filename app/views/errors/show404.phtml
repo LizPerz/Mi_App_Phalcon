@@ -1,10 +1,159 @@
 <script src="https://cdn.tailwindcss.com"></script>
-<div class="w-full h-screen bg-black flex items-center justify-center overflow-hidden relative" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop'); background-size: cover;">
-    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
-    <div class="z-10 text-center px-4">
-        <img src="https://cdn-icons-png.flaticon.com/512/7465/7465679.png" class="w-48 mx-auto animate-bounce mb-6" alt="Astronauta">
-        <h1 class="text-6xl font-black text-white mb-4">404</h1>
-        <p class="text-blue-200 text-xl mb-8">¡Houston, el destino solicitado no existe en esta galaxia!</p>
-        <a href="/Mi_App/hola/index" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-500">Regresar a la Tierra</a>
-    </div>
+
+<style>
+  @keyframes floatShip {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(1deg); }
+  }
+
+  @keyframes starsMove {
+    from { background-position: 0 0; }
+    to { background-position: 0 -400px; }
+  }
+
+  .floatShip {
+    animation: floatShip 6s ease-in-out infinite;
+  }
+
+  .stars {
+    background:
+      radial-gradient(1px 1px at 20px 30px, white, transparent),
+      radial-gradient(1px 1px at 100px 200px, white, transparent),
+      radial-gradient(2px 2px at 300px 150px, white, transparent),
+      radial-gradient(1px 1px at 400px 80px, white, transparent);
+    background-size: 500px 500px;
+    animation: starsMove 25s linear infinite;
+  }
+</style>
+
+<div class="w-full min-h-screen relative overflow-hidden bg-black">
+
+  <!-- Estrellas -->
+  <div class="absolute inset-0 stars opacity-40"></div>
+
+  <!-- Fondo espacial -->
+  <div class="absolute inset-0 bg-cover bg-center scale-110"
+       style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')">
+  </div>
+
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-black/70"></div>
+
+  <!-- Contenido -->
+  <div class="relative z-10 flex flex-col items-center justify-center
+              min-h-screen text-center
+              px-4 sm:px-6 lg:px-10">
+
+    <!-- Nave -->
+    <img
+      src="https://cdn-icons-png.flaticon.com/512/3212/3212608.png"
+      class="
+        w-36 sm:w-44 md:w-56 lg:w-64 xl:w-72
+        mb-8 sm:mb-10
+        floatShip
+        drop-shadow-[0_0_35px_rgba(56,189,248,0.8)]
+      "
+      alt="Nave espacial perdida"
+    >
+
+    <!-- Error -->
+    <h1 class="
+      text-6xl sm:text-7xl md:text-8xl xl:text-9xl
+      font-black text-white tracking-widest mb-4">
+      404
+    </h1>
+
+    <!-- Mensaje -->
+    <p class="
+      text-cyan-300
+      text-lg sm:text-xl md:text-2xl
+      mb-8 sm:mb-10
+      max-w-xs sm:max-w-md md:max-w-xl">
+      Esta nave no encontró el planeta que buscabas.
+      <br class="hidden sm:block">
+      La ruta se perdió en el espacio.
+    </p>
+
+    <!-- Botón -->
+    <a href="<?php echo $this->url->get('hola/index'); ?>"
+       class="
+        px-8 sm:px-10
+        py-3 sm:py-4
+        rounded-full
+        bg-cyan-500 hover:bg-cyan-400
+        text-black font-bold
+        text-base sm:text-lg
+        transition-all duration-300
+        shadow-lg shadow-cyan-500/40
+        hover:scale-105 sm:hover:scale-110">
+       🚀 Volver al inicio
+    </a>
+
+  </div>
 </div>
+
+<!-- <script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  @keyframes floatShip {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(1deg); }
+  }
+
+  @keyframes starsMove {
+    from { background-position: 0 0; }
+    to { background-position: 0 -400px; }
+  }
+
+  .floatShip {
+    animation: floatShip 6s ease-in-out infinite;
+  }
+
+  .stars {
+    background:
+      radial-gradient(1px 1px at 20px 30px, white, transparent),
+      radial-gradient(1px 1px at 100px 200px, white, transparent),
+      radial-gradient(2px 2px at 300px 150px, white, transparent),
+      radial-gradient(1px 1px at 400px 80px, white, transparent);
+    background-size: 500px 500px;
+    animation: starsMove 25s linear infinite;
+  }
+</style>
+
+<div class="w-full h-screen relative overflow-hidden bg-black">
+
+  <div class="absolute inset-0 stars opacity-40"></div>
+
+  <div class="absolute inset-0 bg-cover bg-center scale-110"
+       style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')">
+  </div>
+
+  <div class="absolute inset-0 bg-black/70"></div>
+
+  <div class="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
+
+    <img
+      src="https://cdn-icons-png.flaticon.com/512/3212/3212608.png"
+      class="w-60 mb-10 floatShip drop-shadow-[0_0_35px_rgba(56,189,248,0.8)]"
+      alt="Nave espacial perdida"
+    >
+
+    <h1 class="text-8xl font-black text-white tracking-widest mb-4">
+      404
+    </h1>
+
+    <p class="text-cyan-300 text-2xl mb-10 max-w-xl">
+      Esta nave no encontró el planeta que buscabas.
+      <br>La ruta se perdió en el espacio.
+    </p>
+
+    <a href="<?php echo $this->url->get('hola/index'); ?>"
+       class="px-10 py-4 rounded-full bg-cyan-500 hover:bg-cyan-400
+              text-black font-bold text-lg transition-all duration-300
+              shadow-lg shadow-cyan-500/40 hover:scale-110">
+       🚀 Volver al inicio
+    </a>
+
+  </div>
+</div>
+ -->

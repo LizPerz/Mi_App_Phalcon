@@ -1,13 +1,163 @@
 <script src="https://cdn.tailwindcss.com"></script>
-<div class="w-full h-screen bg-slate-900 flex items-center justify-center overflow-hidden" style="background-image: url('https://images.unsplash.com/photo-1506318137071-a8e063b4bc04?q=80&w=2070&auto=format&fit=crop'); background-size: cover;">
-    <div class="bg-black bg-opacity-70 backdrop-blur-md p-12 rounded-3xl border border-red-500 text-center max-w-lg shadow-2xl shadow-red-500/20">
-        <div class="text-red-500 text-6xl mb-6">⚠️</div>
-        <h1 class="text-4xl font-black text-white mb-4">ERROR 500</h1>
-        <p class="text-gray-300 text-lg mb-8">Nuestros sistemas están sufriendo una tormenta solar. Estamos trabajando para restablecer la comunicación.</p>
-        <div class="flex justify-center gap-2">
-            <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
-            <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse delay-75"></span>
-            <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse delay-150"></span>
-        </div>
+
+<style>
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(239,68,68,.4); }
+    50% { box-shadow: 0 0 40px rgba(239,68,68,.8); }
+  }
+
+  .float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .glow {
+    animation: glow 3s ease-in-out infinite;
+  }
+</style>
+
+<div class="w-full min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-950">
+
+  <!-- Fondo -->
+  <div class="absolute inset-0 bg-cover bg-center scale-110 animate-pulse"
+       style="background-image:url('https://images.unsplash.com/photo-1506318137071-a8e063b4bc04?q=80&w=2070&auto=format&fit=crop')">
+  </div>
+
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+
+  <!-- Caja -->
+  <div class="
+      relative z-10
+      bg-black/70
+      border border-red-500
+      rounded-3xl
+      px-6 py-8
+      sm:px-8 sm:py-10
+      md:px-12 md:py-12
+      max-w-xs sm:max-w-md md:max-w-lg
+      text-center
+      glow
+    ">
+
+    <!-- Icono -->
+    <div class="
+      text-5xl sm:text-6xl md:text-7xl
+      mb-4 sm:mb-6
+      text-red-500
+      float
+    ">
+      🚀
     </div>
+
+    <!-- Título -->
+    <h1 class="
+      text-3xl sm:text-4xl md:text-5xl
+      font-black
+      text-white
+      mb-4
+      tracking-widest
+    ">
+      ERROR 500
+    </h1>
+
+    <!-- Mensaje -->
+    <p class="
+      text-gray-300
+      text-base sm:text-lg
+      mb-6 sm:mb-8
+      leading-relaxed
+    ">
+      Algo salió mal en nuestros servidores.
+      <br class="hidden sm:block">
+      Estamos reparando el sistema y volveremos pronto.
+    </p>
+
+    <!-- Indicadores -->
+    <div class="flex justify-center items-center gap-3 mb-6 sm:mb-8">
+      <span class="w-3 h-3 sm:w-4 sm:h-4 bg-red-500 rounded-full animate-bounce"></span>
+      <span class="w-3 h-3 sm:w-4 sm:h-4 bg-red-500 rounded-full animate-bounce delay-150"></span>
+      <span class="w-3 h-3 sm:w-4 sm:h-4 bg-red-500 rounded-full animate-bounce delay-300"></span>
+    </div>
+
+    <!-- Botón -->
+    <a href="<?php echo $this->url->get('hola/index'); ?>"
+       class="
+        inline-block
+        px-6 sm:px-8
+        py-3
+        rounded-xl
+        bg-red-600 hover:bg-red-700
+        text-white font-semibold
+        transition-all duration-300
+        shadow-lg shadow-red-500/30
+        hover:scale-105
+       ">
+       Volver al inicio
+    </a>
+
+  </div>
 </div>
+
+
+<!-- <script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(239,68,68,.4); }
+    50% { box-shadow: 0 0 40px rgba(239,68,68,.8); }
+  }
+
+  .float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .glow {
+    animation: glow 3s ease-in-out infinite;
+  }
+</style>
+
+<div class="w-full h-screen flex items-center justify-center relative overflow-hidden bg-slate-950">
+
+  <div class="absolute inset-0 bg-cover bg-center scale-110 animate-pulse"
+       style="background-image:url('https://images.unsplash.com/photo-1506318137071-a8e063b4bc04?q=80&w=2070&auto=format&fit=crop')">
+  </div>
+
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+
+  <div class="relative z-10 bg-black/70 border border-red-500 rounded-3xl p-12 max-w-lg text-center glow">
+
+    <div class="text-7xl mb-6 text-red-500 float">🚀</div>
+
+    <h1 class="text-5xl font-black text-white mb-4 tracking-widest">
+      ERROR 500
+    </h1>
+
+    <p class="text-gray-300 text-lg mb-8 leading-relaxed">
+      Algo salió mal en nuestros servidores.<br>
+      Estamos reparando el sistema y volveremos pronto.
+    </p>
+
+    <div class="flex justify-center items-center gap-3 mb-8">
+      <span class="w-4 h-4 bg-red-500 rounded-full animate-bounce"></span>
+      <span class="w-4 h-4 bg-red-500 rounded-full animate-bounce delay-150"></span>
+      <span class="w-4 h-4 bg-red-500 rounded-full animate-bounce delay-300"></span>
+    </div>
+
+    <a href="<?php echo $this->url->get('hola/index'); ?>"
+       class="inline-block px-8 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition-all duration-300 shadow-lg shadow-red-500/30 hover:scale-105">
+       Volver al inicio
+    </a>
+
+  </div>
+</div>
+ -->

@@ -11,6 +11,7 @@ return new \Phalcon\Config([
         'password'    => getenv('DB_PASSWORD') ?: 'rT29EL2l9FQ9wxbla0QaJazwvAuNVSJg',
         'dbname'      => 'universidad_mjo6',
         'port'        => getenv('DB_PORT') ?: 5432,
+        
     ],
     'application' => [
         'appDir'         => APP_PATH . '/',

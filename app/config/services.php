@@ -9,6 +9,7 @@ use Phalcon\Session\Adapter\Files as SessionAdapter;
 use Phalcon\Flash\Direct as Flash;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Events\Manager as EventsManager;
+use Phalcon\Mvc\Dispatcher\Exception as DispatchException; // Agregado para detectar errores de ruta
 
 $di->setShared('config', function () {
     return include APP_PATH . "/config/config.php";
@@ -79,25 +80,37 @@ $di->setShared('session', function () {
     return $session;
 });
 
+// === AQUÍ ESTÁ EL DISPATCHER (POLICÍA DE ERRORES) ACTUALIZADO ===
 $di->setShared('dispatcher', function () {
+    // 1. Crear el Gerente de Eventos
     $eventsManager = new EventsManager();
-    $eventsManager->attach("dispatch:beforeException", function ($event, $dispatcher, $exception) {
-        // En local, queremos ver el error real en lugar del 500 genérico
-        if ($_SERVER['HTTP_HOST'] === 'localhost') {
-            echo "<h1>Error detectado:</h1><pre>" . $exception->getMessage() . "</pre>";
-            exit;
-        }
 
-        switch ($exception->getCode()) {
-            case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
-            case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
-                $dispatcher->forward(['controller' => 'errors', 'action' => 'show404']);
+    // 2. Adjuntar la función para atrapar errores antes de que rompan la página
+    $eventsManager->attach(
+        'dispatch:beforeException',
+        function ($event, $dispatcher, $exception) {
+            
+            // Si el error es "DispatchException", significa que la ruta o controlador NO EXISTE (Error 404)
+            if ($exception instanceof DispatchException) {
+                $dispatcher->forward([
+                    'controller' => 'errors',
+                    'action'     => 'show404'
+                ]);
                 return false;
+            }
+
+            // Para cualquier otro error (Base de datos, código roto, Captcha fallido), mandamos al 500
+            $dispatcher->forward([
+                'controller' => 'errors',
+                'action'     => 'show500'
+            ]);
+
+            return false;
         }
-        $dispatcher->forward(['controller' => 'errors', 'action' => 'show500']);
-        return false;
-    });
+    );
+
     $dispatcher = new Dispatcher();
     $dispatcher->setEventsManager($eventsManager);
+    
     return $dispatcher;
 });

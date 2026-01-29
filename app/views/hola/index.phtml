@@ -4,6 +4,178 @@
         padding: 0 !important;
         width: 100% !important;
         height: 100% !important;
+        overflow: hidden;
+    }
+
+    
+    #fondo-carrusel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-color: #000;
+    }
+
+    .diapositiva {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: 100% 100%; 
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0;
+        transition: opacity 1.5s ease-in-out;
+    }
+
+    .diapositiva.activa {
+        opacity: 1;
+    }
+
+   
+    .scroll-invisible {
+        overflow-y: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .scroll-invisible::-webkit-scrollbar {
+        display: none;
+    }
+</style>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
+
+<div class="w-full h-screen flex items-center justify-center relative px-4 font-['Outfit']">
+
+    <div id="fondo-carrusel">
+        <div class="diapositiva activa" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');"></div>
+        <?php if(isset($imagenes_db)): ?>
+            <?php foreach($imagenes_db as $img): ?>
+                <div class="diapositiva" style="background-image:url('<?= $this->url->get('img/banners/' . $img->nombre_archivo) ?>');"></div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+
+    <div class="
+        w-full max-w-md sm:max-w-lg lg:max-w-xl
+        bg-black/40 backdrop-blur-xl
+        border border-white/20
+        rounded-[2rem] shadow-2xl
+        p-6 sm:p-8 md:p-10
+        text-center z-10
+        max-h-[95vh] scroll-invisible
+    ">
+
+        <div id="mensaje_retorno" style="display: none;" class="mb-6 bg-red-600/20 border border-red-500 text-red-200 px-4 py-3 rounded-xl items-center justify-center gap-2 animate-bounce">
+            <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+            <span class="font-bold">¡Debes responder el captcha!</span>
+        </div>
+
+        <div class="mb-4 text-white font-bold text-sm sm:text-base">
+            <?php echo $this->flash->output(); ?>
+        </div>
+
+        <h1 class="text-3xl sm:text-5xl font-black text-white mb-2 drop-shadow-md tracking-tight">
+            ¡HOLA MUNDO! 👋
+        </h1>
+        <p class="text-blue-100 mb-8 text-sm sm:text-base font-medium">
+            Ingresa tu nombre para la Base de Datos
+        </p>
+
+        <form action="<?php echo $this->url->get('hola/guardar'); ?>" method="POST" class="space-y-5" onsubmit="procesarFormulario(event)">
+            
+            <input type="text" name="nombre_completo" required
+                   placeholder="Escribe tu nombre (Solo letras)..."
+                   class="w-full p-4 rounded-2xl bg-white/10 border border-white/30 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white/20 transition-all text-lg"
+                   oninput="this.value = this.value.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚ\s]/g, '')"> <div class="flex justify-center py-2 scale-90 sm:scale-100">
+                <div class="g-recaptcha" data-sitekey="6Ld1KEosAAAAAHmTh68vYhz1jWV-XndtaQX61_rD"></div>
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/30 flex justify-center items-center gap-2 text-lg transform active:scale-[0.98]">
+                🚀 Guardar en BD
+            </button>
+        </form>
+
+        <div class="bg-black/30 p-6 rounded-3xl text-white mt-10 border border-white/10">
+            <h1 class="text-xl sm:text-2xl font-black mb-6 tracking-widest uppercase text-slate-300">
+                OPCIONES 🛠️
+            </h1>
+
+            <div class="flex flex-col gap-3">
+                <a href="<?= $this->url->get('hola/formulario') ?>" class="bg-green-600 hover:bg-green-500 py-3 rounded-xl font-bold transition shadow-lg flex items-center justify-center gap-2 text-white">
+                    <i data-lucide="clipboard-list" class="w-5 h-5"></i> Ir al Formulario
+                </a>
+
+                <a href="<?= $this->url->get('carrusel/index') ?>" class="bg-purple-600 hover:bg-purple-500 py-3 rounded-xl font-bold transition shadow-lg flex items-center justify-center gap-2 text-white border border-purple-400/30">
+                    <i data-lucide="images" class="w-5 h-5"></i> Editar Carrusel
+                </a>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                    <a href="<?= $this->url->get('hola/error404') ?>" class="bg-orange-600 hover:bg-orange-500 py-2 rounded-xl text-sm font-bold transition flex items-center justify-center gap-1 text-white">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i> Error 404
+                    </a>
+                    <a href="<?= $this->url->get('hola/error500') ?>" class="bg-red-700 hover:bg-red-600 py-2 rounded-xl text-sm font-bold transition flex items-center justify-center gap-1 text-white">
+                        <i data-lucide="x-octagon" class="w-4 h-4"></i> Error 500
+                    </a>
+                </div>
+
+                <a href="<?= $this->url->get('hola/lista') ?>" class="text-blue-300 underline text-sm mt-4 hover:text-white transition">
+                    Ver Lista de Alumnos
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+
+    
+    let index = 0;
+    const slides = document.querySelectorAll('.diapositiva');
+    const totalSlides = slides.length;
+    if (totalSlides > 1) {
+        setInterval(() => {
+            slides[index].classList.remove('activa');
+            index = (index + 1) % totalSlides;
+            slides[index].classList.add('activa');
+        }, 5000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (sessionStorage.getItem('captchaFallido') === 'true') {
+            document.getElementById('mensaje_retorno').style.display = 'flex';
+            sessionStorage.removeItem('captchaFallido');
+        }
+    });
+
+    function procesarFormulario(e) {
+        var response = grecaptcha.getResponse();
+
+        if(response.length === 0) {
+            e.preventDefault(); 
+            
+            sessionStorage.setItem('captchaFallido', 'true');
+
+            window.location.href = "<?= $this->url->get('hola/error500') ?>";
+        }
+    }
+</script>
+
+<!-- <style>
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
         overflow: hidden; 
     }
 
@@ -159,147 +331,4 @@
         }, 5000);
     }
 </script>
-
-
-<!--  <style>
-    html, body {
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        overflow: hidden;
-    }
-
-    #fondo-carrusel {
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-    }
-
-    .diapositiva {
-        position: absolute;
-        inset: 0;
-        background-size: cover;
-        background-position: center;
-        opacity: 0;
-        transition: opacity 1.5s ease-in-out;
-    }
-
-    .diapositiva.activa {
-        opacity: 1;
-    }
-</style>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-
-<div class="w-full min-h-screen flex items-center justify-center overflow-hidden relative px-4 sm:px-6 lg:px-8">
-
-    <div id="fondo-carrusel">
-        <div class="diapositiva activa"
-             style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');">
-        </div>
-
-        <?php if(isset($imagenes_db)): ?>
-            <?php foreach($imagenes_db as $img): ?>
-                <div class="diapositiva"
-                     style="background-image:url('<?= $this->url->get('img/banners/' . $img->nombre_archivo) ?>');">
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </div>
-
-    <div class="
-        w-full
-        max-w-md sm:max-w-lg lg:max-w-xl
-        bg-black/40 backdrop-blur-md
-        border border-white/20
-        rounded-3xl
-        shadow-2xl
-        p-6 sm:p-8 md:p-10
-        text-center
-        z-10
-        overflow-y-auto
-        max-h-[90vh]
-    ">
-
-        <div class="mb-4 text-white font-bold text-sm sm:text-base">
-            <?php echo $this->flash->output(); ?>
-        </div>
-
-        <h1 class="text-3xl sm:text-4xl font-black text-white mb-2 drop-shadow-md">
-            ¡Hola Mundo!👋
-        </h1>
-        <p class="text-blue-100 mb-6 text-sm sm:text-base">
-            Ingresa tu nombre para la Base de Datos
-        </p>
-
-        <form action="<?php echo $this->url->get('hola/guardar'); ?>" method="POST" class="space-y-4">
-            <input type="text" name="nombre_completo" required
-                   placeholder="Escribe tu nombre aquí..."
-                   class="w-full p-3 sm:p-4 rounded-xl bg-white/20 border border-white/30 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400">
-
-            <div class="flex justify-center py-2 scale-90 sm:scale-100">
-                <div class="g-recaptcha" data-sitekey="6Ld1KEosAAAAAHmTh68vYhz1jWV-XndtaQX61_rD"></div>
-            </div>
-
-            <button type="submit"
-                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 sm:py-4 px-8 rounded-xl transition shadow-lg flex justify-center items-center gap-2">
-                🚀 Guardar en BD
-            </button>
-        </form>
-
-        <div class="bg-black/40 backdrop-blur-md p-5 sm:p-6 rounded-3xl text-white mt-8 border border-white/10">
-            <h1 class="text-xl sm:text-2xl font-black mb-6 tracking-widest uppercase">
-                OPCIONES 🛠️
-            </h1>
-
-            <div class="flex flex-col gap-3">
-                <a href="<?= $this->url->get('hola/formulario') ?>"
-                   class="bg-green-600 hover:bg-green-500 py-3 rounded-xl font-bold transition shadow-lg flex items-center justify-center gap-2">
-                    <i data-lucide="clipboard-list" class="w-5 h-5"></i> Ir al Formulario
-                </a>
-
-                <a href="<?= $this->url->get('carrusel/index') ?>"
-                   class="bg-purple-600 hover:bg-purple-500 py-3 rounded-xl font-bold transition shadow-lg flex items-center justify-center gap-2">
-                    <i data-lucide="images" class="w-5 h-5"></i> Editar Carrusel
-                </a>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-                    <a href="<?= $this->url->get('hola/error404') ?>"
-                       class="bg-orange-600 hover:bg-orange-500 py-2 rounded-xl text-sm font-bold transition flex items-center justify-center gap-1">
-                        <i data-lucide="alert-triangle" class="w-4 h-4"></i> Error 404
-                    </a>
-                    <a href="<?= $this->url->get('hola/error500') ?>"
-                       class="bg-red-700 hover:bg-red-600 py-2 rounded-xl text-sm font-bold transition flex items-center justify-center gap-1">
-                        <i data-lucide="x-octagon" class="w-4 h-4"></i> Error 500
-                    </a>
-                </div>
-
-                <a href="<?= $this->url->get('hola/lista') ?>"
-                   class="text-blue-200 underline text-sm mt-4 hover:text-white transition">
-                    Ver Lista de Alumnos
-                </a>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<script>
-    lucide.createIcons();
-
-    let index = 0;
-    const slides = document.querySelectorAll('.diapositiva');
-    const totalSlides = slides.length;
-
-    if (totalSlides > 1) {
-        setInterval(() => {
-            slides[index].classList.remove('activa');
-            index = (index + 1) % totalSlides;
-            slides[index].classList.add('activa');
-        }, 5000);
-    }
-</script>
-  -->
+ -->

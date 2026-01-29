@@ -17,6 +17,354 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800
             px-4 sm:px-6 lg:px-10 py-10 text-white">
 
+  <nav class="w-full md:w-fit flex flex-wrap items-center text-base md:text-lg text-slate-400 mb-6 bg-slate-800/80 p-4 rounded-2xl border border-slate-700 shadow-lg backdrop-blur-sm transition-all hover:border-slate-500">
+    <a href="<?= $this->url->get('hola/index') ?>" class="hover:text-blue-400 transition flex items-center gap-2 group">
+      <i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+      <span>Inicio</span>
+    </a>
+
+    <span class="mx-3 text-slate-600">/</span>
+
+    <a href="<?= $this->url->get('hola/formulario') ?>" class="hover:text-blue-400 transition flex items-center gap-2 group">
+      <i data-lucide="clipboard-list" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+      <span>Formulario</span>
+    </a>
+
+    <span class="mx-3 text-slate-600">/</span>
+
+    <span class="text-white font-bold flex items-center gap-2">
+      <i data-lucide="images" class="w-5 h-5 text-purple-400"></i>
+      <span>Carrusel</span>
+    </span>
+  </nav>
+
+  <div class="max-w-7xl mx-auto">
+
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between
+                gap-8 mb-14 pb-8 border-b border-slate-700">
+
+      <div>
+        <h1 class="text-4xl sm:text-5xl font-black text-transparent bg-clip-text
+                   bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400">
+          Gestor de Carrusel
+        </h1>
+        <p class="text-slate-400 mt-3 max-w-xl">
+          Administra las imágenes que se muestran en tu Hola Mundo de forma visual y sencilla
+        </p>
+      </div>
+
+      <a href="<?= $this->url->get('hola/index') ?>"
+         class="flex items-center justify-center gap-2 bg-slate-800/70 hover:bg-slate-700
+                px-8 py-4 rounded-2xl font-bold transition-all
+                shadow-lg hover:scale-105 w-full sm:w-auto">
+        <i data-lucide="arrow-left"></i>
+        Volver al Mundo
+      </a>
+    </div>
+
+    <div class="bg-slate-800/70 backdrop-blur-xl border border-slate-700
+                rounded-3xl p-8 sm:p-10 mb-16 shadow-2xl glow">
+
+      <h2 class="text-2xl sm:text-3xl font-bold mb-8 flex items-center gap-3">
+        <i data-lucide="upload-cloud" class="text-cyan-400"></i>
+        Subir nueva imagen
+      </h2>
+
+      <form action="<?= $this->url->get('carrusel/subir') ?>"
+            method="post" enctype="multipart/form-data"
+            class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-end">
+
+        <div class="lg:col-span-3">
+          <label class="block text-sm font-semibold text-slate-400 mb-2">
+            Imagen (JPG, PNG, máx 5MB)
+          </label>
+
+          <input type="file" name="imagen" accept="image/png, image/jpeg, image/jpg" required
+                 class="w-full p-4 rounded-2xl bg-slate-900 border-2 border-slate-600
+                        text-slate-300
+                        file:mr-4 file:py-3 file:px-6 file:rounded-full
+                        file:border-0 file:font-bold
+                        file:bg-gradient-to-r file:from-cyan-400 file:to-purple-400
+                        file:text-black hover:file:opacity-90 transition-all"
+                 onchange="
+                    var file = this.files[0];
+                    if(file) {
+                        var fileType = file.type;
+                        var validImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                        if (!validImageTypes.includes(fileType)) {
+                            alert('❌ Error: Solo se permiten archivos PNG o JPG.');
+                            this.value = '';
+                        } else if(file.size > 5000000){
+                            alert('❌ Imagen demasiado pesada (máx 5MB)');
+                            this.value = '';
+                        }
+                    }
+                 ">
+        </div>
+
+        <button type="submit"
+                class="h-[64px] bg-gradient-to-r from-green-400 to-emerald-500
+                       hover:from-green-500 hover:to-emerald-600
+                       text-black font-black rounded-2xl transition-all
+                       shadow-xl hover:scale-105 flex items-center justify-center gap-2">
+          <i data-lucide="plus"></i>
+          Subir
+        </button>
+      </form>
+    </div>
+
+    <h2 class="text-3xl sm:text-4xl font-bold mb-10 flex items-center gap-3">
+      <i data-lucide="image" class="text-purple-400"></i>
+      Imágenes activas
+    </h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+
+      <?php foreach ($imagenes as $img): ?>
+        <div class="group relative bg-slate-800/70 border border-slate-700
+                    rounded-3xl overflow-hidden shadow-xl float
+                    hover:shadow-purple-500/30 transition-all">
+
+          <img src="<?= $this->url->get('img/banners/' . $img->nombre_archivo) ?>"
+               class="w-full h-56 sm:h-60 object-cover
+                      group-hover:scale-110 transition-transform duration-500">
+
+          <div class="absolute inset-0 bg-black/70 flex items-center justify-center
+                      opacity-0 group-hover:opacity-100 transition">
+
+            <a href="<?= $this->url->get('carrusel/eliminar/' . $img->id) ?>"
+               onclick="return confirm('¿Seguro que quieres borrar esta imagen?');"
+               class="bg-red-500 hover:bg-red-600 px-6 py-3 rounded-full
+                      font-bold flex items-center gap-2 shadow-lg
+                      hover:scale-110 transition">
+              <i data-lucide="trash-2"></i>
+              Eliminar
+            </a>
+          </div>
+
+        </div>
+      <?php endforeach; ?>
+
+      <?php if (count($imagenes) == 0): ?>
+        <div class="col-span-full text-center py-20
+                    bg-slate-800/40 border border-dashed border-slate-600 rounded-3xl">
+          <i data-lucide="image-off" class="mx-auto mb-6 text-slate-500 w-14 h-14"></i>
+          <p class="text-slate-400 text-2xl">
+            Aún no hay imágenes en el carrusel
+          </p>
+        </div>
+      <?php endif; ?>
+
+    </div>
+
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+
+
+<!-- <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes glow {
+    0%,100% { box-shadow: 0 0 25px rgba(56,189,248,.3); }
+    50% { box-shadow: 0 0 45px rgba(168,85,247,.5); }
+  }
+  .float { animation: float 5s ease-in-out infinite; }
+  .glow { animation: glow 4s ease-in-out infinite; }
+</style>
+
+<div class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800
+            px-4 sm:px-6 lg:px-10 py-10 text-white">
+
+  <nav class="w-full md:w-fit flex flex-wrap items-center text-base md:text-lg text-slate-400 mb-6 bg-slate-800/80 p-4 rounded-2xl border border-slate-700 shadow-lg backdrop-blur-sm transition-all hover:border-slate-500">
+    <a href="<?= $this->url->get('hola/index') ?>" class="hover:text-blue-400 transition flex items-center gap-2 group">
+      <i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+      <span>Inicio</span>
+    </a>
+
+    <span class="mx-3 text-slate-600">/</span>
+
+    <span class="text-white font-bold flex items-center gap-2">
+      <i data-lucide="images" class="w-5 h-5 text-purple-400"></i>
+      <span>Carrusel</span>
+    </span>
+  </nav>
+
+  <div class="max-w-7xl mx-auto">
+
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between
+                gap-8 mb-14 pb-8 border-b border-slate-700">
+
+      <div>
+        <h1 class="text-4xl sm:text-5xl font-black text-transparent bg-clip-text
+                   bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400">
+          Gestor de Carrusel
+        </h1>
+        <p class="text-slate-400 mt-3 max-w-xl">
+          Administra las imágenes que se muestran en tu Hola Mundo de forma visual y sencilla
+        </p>
+      </div>
+
+      <a href="<?= $this->url->get('hola/index') ?>"
+         class="flex items-center justify-center gap-2 bg-slate-800/70 hover:bg-slate-700
+                px-8 py-4 rounded-2xl font-bold transition-all
+                shadow-lg hover:scale-105 w-full sm:w-auto">
+        <i data-lucide="arrow-left"></i>
+        Volver al Mundo
+      </a>
+    </div>
+
+    <div class="bg-slate-800/70 backdrop-blur-xl border border-slate-700
+                rounded-3xl p-8 sm:p-10 mb-16 shadow-2xl glow">
+
+      <h2 class="text-2xl sm:text-3xl font-bold mb-8 flex items-center gap-3">
+        <i data-lucide="upload-cloud" class="text-cyan-400"></i>
+        Subir nueva imagen
+      </h2>
+
+      <form action="<?= $this->url->get('carrusel/subir') ?>"
+            method="post" enctype="multipart/form-data"
+            class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-end">
+
+        <div class="lg:col-span-3">
+          <label class="block text-sm font-semibold text-slate-400 mb-2">
+            Imagen (JPG, PNG, máx 5MB)
+          </label>
+
+          <input type="file" name="imagen" accept="image/png, image/jpeg, image/jpg" required
+                 class="w-full p-4 rounded-2xl bg-slate-900 border-2 border-slate-600
+                        text-slate-300
+                        file:mr-4 file:py-3 file:px-6 file:rounded-full
+                        file:border-0 file:font-bold
+                        file:bg-gradient-to-r file:from-cyan-400 file:to-purple-400
+                        file:text-black hover:file:opacity-90 transition-all"
+                 onchange="
+                    var file = this.files[0];
+                    if(file) {
+                        var fileType = file.type;
+                        var validImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                        if (!validImageTypes.includes(fileType)) {
+                            alert('❌ Error: Solo se permiten archivos PNG o JPG.');
+                            this.value = '';
+                        } else if(file.size > 5000000){
+                            alert('❌ Imagen demasiado pesada (máx 5MB)');
+                            this.value = '';
+                        }
+                    }
+                 ">
+        </div>
+
+        <button type="submit"
+                class="h-[64px] bg-gradient-to-r from-green-400 to-emerald-500
+                       hover:from-green-500 hover:to-emerald-600
+                       text-black font-black rounded-2xl transition-all
+                       shadow-xl hover:scale-105 flex items-center justify-center gap-2">
+          <i data-lucide="plus"></i>
+          Subir
+        </button>
+      </form>
+    </div>
+
+    <h2 class="text-3xl sm:text-4xl font-bold mb-10 flex items-center gap-3">
+      <i data-lucide="image" class="text-purple-400"></i>
+      Imágenes activas
+    </h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+
+      <?php foreach ($imagenes as $img): ?>
+        <div class="group relative bg-slate-800/70 border border-slate-700
+                    rounded-3xl overflow-hidden shadow-xl float
+                    hover:shadow-purple-500/30 transition-all">
+
+          <img src="<?= $this->url->get('img/banners/' . $img->nombre_archivo) ?>"
+               class="w-full h-56 sm:h-60 object-cover
+                      group-hover:scale-110 transition-transform duration-500">
+
+          <div class="absolute inset-0 bg-black/70 flex items-center justify-center
+                      opacity-0 group-hover:opacity-100 transition">
+
+            <a href="<?= $this->url->get('carrusel/eliminar/' . $img->id) ?>"
+               onclick="return confirm('¿Seguro que quieres borrar esta imagen?');"
+               class="bg-red-500 hover:bg-red-600 px-6 py-3 rounded-full
+                      font-bold flex items-center gap-2 shadow-lg
+                      hover:scale-110 transition">
+              <i data-lucide="trash-2"></i>
+              Eliminar
+            </a>
+          </div>
+
+        </div>
+      <?php endforeach; ?>
+
+      <?php if (count($imagenes) == 0): ?>
+        <div class="col-span-full text-center py-20
+                    bg-slate-800/40 border border-dashed border-slate-600 rounded-3xl">
+          <i data-lucide="image-off" class="mx-auto mb-6 text-slate-500 w-14 h-14"></i>
+          <p class="text-slate-400 text-2xl">
+            Aún no hay imágenes en el carrusel
+          </p>
+        </div>
+      <?php endif; ?>
+
+    </div>
+
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+ -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes glow {
+    0%,100% { box-shadow: 0 0 25px rgba(56,189,248,.3); }
+    50% { box-shadow: 0 0 45px rgba(168,85,247,.5); }
+  }
+  .float { animation: float 5s ease-in-out infinite; }
+  .glow { animation: glow 4s ease-in-out infinite; }
+</style>
+
+<div class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800
+            px-4 sm:px-6 lg:px-10 py-10 text-white">
+
 
 
 
@@ -151,3 +499,4 @@
 
 
 
+ -->

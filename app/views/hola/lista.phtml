@@ -1,38 +1,317 @@
 <style>
     html, body { margin: 0; padding: 0; }
+    
+    .fade-out {
+        transition: all 0.5s ease;
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    .modal-enter {
+        animation: modalIn 0.3s ease-out forwards;
+    }
+    @keyframes modalIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
 </style>
 
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 
-<div class="w-full min-h-screen bg-fixed bg-center bg-cover flex items-center justify-center px-4 sm:px-6 lg:px-10"
+<div class="w-full min-h-screen bg-fixed bg-center bg-cover flex items-center justify-center px-4 sm:px-6 lg:px-10 font-sans"
      style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');">
 
-    <div class="
-        w-full 
-        max-w-xl sm:max-w-3xl lg:max-w-5xl
-        bg-black/60 backdrop-blur-xl
-        border border-white/20
-        rounded-3xl
-        shadow-2xl
-        p-5 sm:p-8 lg:p-10
-    ">
+    <div class="w-full max-w-xl sm:max-w-3xl lg:max-w-6xl bg-slate-900/80 backdrop-blur-xl border border-slate-700 rounded-[2rem] shadow-2xl p-5 sm:p-8 lg:p-10 relative">
 
+        <nav class="w-full md:w-fit flex flex-wrap items-center text-base md:text-lg text-slate-400 mb-8 bg-slate-800/50 p-3 rounded-2xl border border-slate-600 shadow-lg backdrop-blur-sm">
+            <a href="<?= $this->url->get('hola/index') ?>" class="hover:text-blue-400 transition flex items-center gap-2 group">
+                <i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition-transform"></i> 
+                <span>Inicio</span>
+            </a>
+            
+            <span class="mx-3 text-slate-600">/</span>
 
+            <a href="<?= $this->url->get('hola/formulario') ?>" class="hover:text-green-400 transition flex items-center gap-2 group">
+                <i data-lucide="clipboard-list" class="w-5 h-5 group-hover:scale-110 transition-transform"></i> 
+                <span>Formulario</span>
+            </a>
+            
+            <span class="mx-3 text-slate-600">/</span>
+            
+            <span class="text-white font-bold flex items-center gap-2">
+                <i data-lucide="table-2" class="w-5 h-5 text-sky-400"></i> 
+                <span>Lista de Alumnos</span>
+            </span>
+        </nav>
 
-    <nav class="w-full md:w-fit flex flex-wrap items-center text-base md:text-lg text-slate-400 mb-6 bg-slate-800/80 p-4 rounded-2xl border border-slate-700 shadow-lg backdrop-blur-sm">
-    <a href="<?= $this->url->get('hola/index') ?>" class="hover:text-blue-400 transition flex items-center gap-2 group">
-        <i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition-transform"></i> 
-        <span>Inicio</span>
-    </a>
+        <div class="mb-4 text-white font-bold text-sm sm:text-base">
+            <?php echo $this->flash->output(); ?>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                    🚀 Lista De ALUMNOS
+                </h1>
+                <p class="text-slate-400 text-sm">Gestiona los alumnos registrados en la base de datos</p>
+            </div>
+            
+            <a href="<?php echo $this->url->get('hola/index'); ?>"
+               class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-8 rounded-2xl transition shadow-lg hover:shadow-blue-500/30 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95">
+               <i data-lucide="plus-circle" class="w-5 h-5"></i> Nuevo Alumno
+            </a>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-slate-700 shadow-xl">
+            <table class="min-w-full text-left text-white border-collapse text-sm sm:text-base">
+                <thead class="bg-slate-800 text-slate-300">
+                    <tr>
+                        <th class="p-4 uppercase text-xs font-bold tracking-widest border-b border-slate-600">ID</th>
+                        <th class="p-4 uppercase text-xs font-bold tracking-widest border-b border-slate-600">Nombre</th>
+                        <th class="p-4 uppercase text-xs font-bold tracking-widest border-b border-slate-600 text-center hidden sm:table-cell">Registro</th>
+                        <th class="p-4 uppercase text-xs font-bold tracking-widest border-b border-slate-600 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaAlumnos" class="divide-y divide-slate-700/50">
+                    <?php if (isset($alumnos) && count($alumnos) > 0): ?>
+                        <?php foreach ($alumnos as $alumno): ?>
+                        <tr id="fila-<?= $alumno->id ?>" class="hover:bg-slate-800/50 transition duration-200">
+                            <td class="p-4 font-mono text-blue-400 font-bold">#<?php echo $alumno->id; ?></td>
+                            <td id="nombre-celda-<?= $alumno->id ?>" class="p-4 font-medium text-lg text-slate-200 break-words">
+                                <?php echo $alumno->nombre; ?>
+                            </td>
+                            <td class="p-4 text-center text-sm text-slate-400 hidden sm:table-cell">
+                                <?php 
+                                    date_default_timezone_set('America/Mexico_City');
+                                    echo date('d/m/Y h:i A', strtotime($alumno->fecha_registro)); 
+                                ?>
+                            </td>
+                            <td class="p-4 text-right">
+                                <div class="flex justify-end gap-3">
+                                    <button onclick="abrirModal(<?= $alumno->id ?>, '<?= htmlspecialchars($alumno->nombre, ENT_QUOTES) ?>')"
+                                            class="group bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-black p-2.5 rounded-xl transition shadow-lg hover:shadow-orange-500/20 transform hover:-translate-y-1">
+                                        <i data-lucide="edit-3" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                                    </button>
+
+                                    <button onclick="abrirConfirmacion(<?= $alumno->id ?>)"
+                                            class="group bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white p-2.5 rounded-xl transition shadow-lg hover:shadow-red-500/30 transform hover:-translate-y-1">
+                                        <i data-lucide="trash-2" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="4" class="p-10 text-center text-slate-500 italic text-lg bg-slate-800/20">
+                                <div class="flex flex-col items-center gap-3">
+                                    <i data-lucide="ghost" class="w-10 h-10 opacity-50"></i>
+                                    No hay Alumnos registrados todavía.
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<div id="modalEditar" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-600 p-8 rounded-3xl w-full max-w-md shadow-2xl modal-enter relative">
+        
+        <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-amber-500 p-4 rounded-full shadow-xl shadow-amber-500/30">
+            <i data-lucide="edit" class="w-8 h-8 text-black"></i>
+        </div>
+
+        <h3 class="text-2xl font-black text-white mb-2 text-center mt-6">Editar Alumno</h3>
+        <p class="text-slate-400 text-center mb-6 text-sm">Actualiza el nombre del alumno</p>
+        
+        <input type="hidden" id="editId">
+        
+        <div class="mb-6">
+            <label class="block text-slate-400 mb-2 text-xs uppercase font-bold tracking-widest ml-1">Nombre Completo</label>
+            <input type="text" id="editNombre" 
+                   class="w-full p-4 rounded-2xl bg-slate-800 border-2 border-slate-600 text-white focus:border-amber-500 focus:ring-0 outline-none text-lg transition-all placeholder-slate-600">
+        </div>
+
+        <div class="flex gap-3">
+            <button onclick="cerrarModal()" 
+                    class="w-1/2 py-4 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold transition">
+                Cancelar
+            </button>
+            <button onclick="guardarEdicion()" 
+                    class="w-1/2 py-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black transition shadow-lg shadow-amber-500/20">
+                Guardar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="modalConfirmar" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-red-900/50 p-8 rounded-3xl w-full max-w-md shadow-2xl modal-enter relative text-center">
+        
+        <div class="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i data-lucide="alert-triangle" class="w-10 h-10 text-red-500"></i>
+        </div>
+
+        <h3 class="text-2xl font-black text-white mb-2">¿Estás segur@?</h3>
+        <p class="text-slate-400 mb-8">Esta acción eliminará al alumno permanentemente. No se puede deshacer.</p>
+        
+        <div class="flex gap-3">
+            <button onclick="cerrarConfirmacion()" 
+                    class="w-1/2 py-3 rounded-xl bg-slate-800 text-white hover:bg-slate-700 font-bold transition">
+                No, cancelar
+            </button>
+            <button onclick="ejecutarEliminacion()" 
+                    class="w-1/2 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold transition shadow-lg shadow-red-600/30">
+                Sí, eliminar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="modalExito" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-green-500/30 p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center transform scale-110 transition-all">
+        <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i data-lucide="check-circle-2" class="w-10 h-10 text-green-400"></i>
+        </div>
+        <h3 class="text-2xl font-black text-white mb-2">¡Excelente!</h3>
+        <p id="textoExito" class="text-slate-300 text-lg mb-6">Operación realizada con éxito.</p>
+        <button onclick="cerrarExito()" class="w-full bg-green-500 hover:bg-green-400 text-black font-bold py-3 rounded-xl transition shadow-lg shadow-green-500/20">
+            Entendido
+        </button>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
     
-    <span class="mx-3 text-slate-600">/</span>
-    
-    <span class="text-white font-bold flex items-center gap-2">
-        <i data-lucide="table-2" class="w-5 h-5 text-sky-400"></i> 
-        <span>Lista de Alumnos</span>
-    </span>
-</nav>
+    let idParaEliminar = null;
 
+
+    function abrirModal(id, nombre) {
+        document.getElementById('editId').value = id;
+        document.getElementById('editNombre').value = nombre;
+        document.getElementById('modalEditar').classList.remove('hidden');
+    }
+    function cerrarModal() {
+        document.getElementById('modalEditar').classList.add('hidden');
+    }
+
+    function abrirConfirmacion(id) {
+        idParaEliminar = id;
+        document.getElementById('modalConfirmar').classList.remove('hidden');
+    }
+    function cerrarConfirmacion() {
+        document.getElementById('modalConfirmar').classList.add('hidden');
+    }
+
+    function mostrarExito(mensaje) {
+        document.getElementById('textoExito').innerText = mensaje;
+        document.getElementById('modalExito').classList.remove('hidden');
+    }
+    function cerrarExito() {
+        document.getElementById('modalExito').classList.add('hidden');
+    }
+
+
+    function ejecutarEliminacion() {
+        if(!idParaEliminar) return; 
+
+        const idLocal = idParaEliminar;
+
+        const url = "<?= $this->url->get('hola/eliminar/') ?>" + idLocal;
+
+        fetch(url, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            cerrarConfirmacion(); 
+            
+            if(data.status === 'success') {
+                const fila = document.getElementById('fila-' + idLocal);
+                if(fila) {
+                    fila.classList.add('fade-out'); 
+                    setTimeout(() => fila.remove(), 500); 
+                }
+                mostrarExito('¡Eliminado exitosamente!');
+            } else {
+                alert('Hubo un error al intentar eliminar.');
+            }
+            idParaEliminar = null; 
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            cerrarConfirmacion();
+            alert('Error de conexión.');
+        });
+    }
+
+    function guardarEdicion() {
+        const id = document.getElementById('editId').value;
+        const nombre = document.getElementById('editNombre').value;
+        const url = "<?= $this->url->get('hola/editar') ?>";
+
+        if(!nombre.trim()) { alert('El nombre no puede estar vacío'); return; }
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, nombre: nombre })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                const celdaNombre = document.getElementById('nombre-celda-' + id);
+                if(celdaNombre) celdaNombre.innerText = nombre;
+                
+                const btnEditar = document.querySelector(`#fila-${id} button[onclick^="abrirModal"]`);
+                if(btnEditar) {
+                    btnEditar.setAttribute('onclick', `abrirModal(${id}, '${nombre}')`);
+                }
+
+                cerrarModal();
+                mostrarExito('¡Actualización exitosa!');
+            } else {
+                alert('❌ Error: ' + data.msg);
+            }
+        })
+        .catch(err => console.error('Error:', err));
+    }
+</script>
+<!--  <style>
+    html, body { margin: 0; padding: 0; }
+    .fade-out {
+        transition: all 0.5s ease;
+        opacity: 0;
+        transform: translateX(20px);
+    }
+</style>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<div class="w-full min-h-screen bg-fixed bg-center bg-cover flex items-center justify-center px-4 sm:px-6 lg:px-10 font-sans"
+     style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');">
+
+    <div class="w-full max-w-xl sm:max-w-3xl lg:max-w-5xl bg-black/60 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-5 sm:p-8 lg:p-10 relative">
+
+        <nav class="w-full md:w-fit flex flex-wrap items-center text-base md:text-lg text-slate-400 mb-6 bg-slate-800/80 p-4 rounded-2xl border border-slate-700 shadow-lg backdrop-blur-sm">
+            <a href="<?= $this->url->get('hola/index') ?>" class="hover:text-blue-400 transition flex items-center gap-2 group">
+                <i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition-transform"></i> 
+                <span>Inicio</span>
+            </a>
+            <span class="mx-3 text-slate-600">/</span>
+            <span class="text-white font-bold flex items-center gap-2">
+                <i data-lucide="table-2" class="w-5 h-5 text-sky-400"></i> 
+                <span>Lista de Alumnos</span>
+            </span>
+        </nav>
 
         <div class="mb-4 text-white font-bold text-sm sm:text-base">
             <?php echo $this->flash->output(); ?>
@@ -43,8 +322,8 @@
                 🚀 Alumnos en Órbita
             </h1>
             <a href="<?php echo $this->url->get('hola/index'); ?>"
-               class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-full transition shadow-lg w-full sm:w-auto text-center">
-                + Nuevo
+               class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-full transition shadow-lg w-full sm:w-auto text-center flex items-center justify-center gap-2">
+               <i data-lucide="plus-circle" class="w-5 h-5"></i> Nuevo
             </a>
         </div>
 
@@ -54,20 +333,16 @@
                     <tr>
                         <th class="p-3 sm:p-4 text-blue-400 uppercase text-xs tracking-widest">ID</th>
                         <th class="p-3 sm:p-4 uppercase text-xs tracking-widest">Nombre</th>
-                        <th class="p-3 sm:p-4 uppercase text-xs tracking-widest text-center hidden sm:table-cell">
-                            Registro (CDMX)
-                        </th>
+                        <th class="p-3 sm:p-4 uppercase text-xs tracking-widest text-center hidden sm:table-cell">Registro (CDMX)</th>
                         <th class="p-3 sm:p-4 uppercase text-xs tracking-widest text-right">Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tablaAlumnos">
                     <?php if (isset($alumnos) && count($alumnos) > 0): ?>
                         <?php foreach ($alumnos as $alumno): ?>
-                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                            <td class="p-3 sm:p-4 font-mono text-blue-300">
-                                #<?php echo $alumno->id; ?>
-                            </td>
-                            <td class="p-3 sm:p-4 font-bold break-words">
+                        <tr id="fila-<?= $alumno->id ?>" class="border-b border-white/5 hover:bg-white/5 transition">
+                            <td class="p-3 sm:p-4 font-mono text-blue-300">#<?php echo $alumno->id; ?></td>
+                            <td id="nombre-celda-<?= $alumno->id ?>" class="p-3 sm:p-4 font-bold break-words">
                                 <?php echo $alumno->nombre; ?>
                             </td>
                             <td class="p-3 sm:p-4 text-center text-sm opacity-80 hidden sm:table-cell">
@@ -76,12 +351,16 @@
                                     echo date('d/m/Y - h:i A', strtotime($alumno->fecha_registro)); 
                                 ?>
                             </td>
-                            <td class="p-3 sm:p-4 text-right">
-                                <a href="<?php echo $this->url->get('hola/eliminar/' . $alumno->id); ?>"
-                                   onclick="return confirm('¿Estás segura de eliminar este registro?');"
-                                   class="inline-block bg-red-600 hover:bg-red-500 text-white text-xs sm:text-sm font-bold py-2 px-4 rounded-xl transition shadow-md">
-                                    🗑️ Eliminar
-                                </a>
+                            <td class="p-3 sm:p-4 text-right flex justify-end gap-2">
+                                <button onclick="abrirModal(<?= $alumno->id ?>, '<?= htmlspecialchars($alumno->nombre, ENT_QUOTES) ?>')"
+                                        class="bg-yellow-500 hover:bg-yellow-400 text-black p-2 rounded-xl transition shadow-md" title="Editar">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </button>
+
+                                <button onclick="eliminarAlumno(<?= $alumno->id ?>)"
+                                        class="bg-red-600 hover:bg-red-500 text-white p-2 rounded-xl transition shadow-md" title="Eliminar">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -98,4 +377,104 @@
 
     </div>
 </div>
+
+<div id="modalEditar" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-600 p-8 rounded-3xl w-full max-w-md shadow-2xl transform transition-all scale-100">
+        <h3 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+            <i data-lucide="edit" class="text-yellow-400"></i> Editar Alumno
+        </h3>
+        
+        <input type="hidden" id="editId">
+        
+        <label class="block text-slate-400 mb-2 text-sm uppercase font-bold">Nombre Completo</label>
+        <input type="text" id="editNombre" 
+               class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 text-white focus:border-blue-500 outline-none mb-6">
+
+        <div class="flex justify-end gap-3">
+            <button onclick="cerrarModal()" 
+                    class="px-6 py-3 rounded-xl bg-slate-700 text-white hover:bg-slate-600 font-bold transition">
+                Cancelar
+            </button>
+            <button onclick="guardarEdicion()" 
+                    class="px-6 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-500 font-bold transition shadow-lg flex items-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i> Guardar
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+
+    
+    function eliminarAlumno(id) {
+        if(!confirm('¿Seguro que deseas eliminar este registro?')) return;
+
+       
+        const url = "<?= $this->url->get('hola/eliminar/') ?>" + id;
+
+        fetch(url, {
+            method: 'GET', 
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                const fila = document.getElementById('fila-' + id);
+                if(fila) {
+                    fila.classList.add('fade-out');
+                    setTimeout(() => fila.remove(), 500); 
+                }
+            } else {
+                alert('Error al eliminar');
+            }
+        })
+        .catch(err => console.error('Error:', err));
+    }
+
+    function abrirModal(id, nombre) {
+        document.getElementById('editId').value = id;
+        document.getElementById('editNombre').value = nombre;
+        document.getElementById('modalEditar').classList.remove('hidden');
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalEditar').classList.add('hidden');
+    }
+
+    function guardarEdicion() {
+        const id = document.getElementById('editId').value;
+        const nombre = document.getElementById('editNombre').value;
+        const url = "<?= $this->url->get('hola/editar') ?>";
+
+        if(!nombre.trim()) { alert('El nombre no puede estar vacío'); return; }
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: id, nombre: nombre })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                const celdaNombre = document.getElementById('nombre-celda-' + id);
+                if(celdaNombre) celdaNombre.innerText = nombre;
+                
+                const btnEditar = document.querySelector(`#fila-${id} button[onclick^="abrirModal"]`);
+                if(btnEditar) {
+                    btnEditar.setAttribute('onclick', `abrirModal(${id}, '${nombre}')`);
+                }
+
+                cerrarModal();
+                alert('✅ Actualizado correctamente');
+            } else {
+                alert('❌ Error: ' + data.msg);
+            }
+        })
+        .catch(err => console.error('Error:', err));
+    }
+</script> -->
+
 

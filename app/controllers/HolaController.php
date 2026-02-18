@@ -1,4 +1,5 @@
 <?php
+
 use App\Models\Alumnos;
 use Phalcon\Http\Response;
 
@@ -6,28 +7,16 @@ class HolaController extends ControllerBase
 {
     public function indexAction()
     {
-        // Solo muestra el formulario
-        $this->view->imagenes_db = Carrusel::find();
+        // $this->view->imagenes_db = \App\Models\Carrusel::find(); 
     }
 
     public function guardarAction()
     {
-        // ... (Tu código de guardar original se queda igual) ...
         if ($this->request->isPost()) {
             try {
-                $recaptchaResponse = $this->request->getPost('g-recaptcha-response');
-                $secretKey = "6Ld1KEosAAAAAH9u1ZO12TlbVCgf4TFefVXzWak8";
-                $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$recaptchaResponse}");
-                $responseData = json_decode($verify);
-                
-                if (!$responseData->success) {
-                    $this->flash->error("Por favor, confirma que no eres un robot.");
-                    return $this->response->redirect('hola/index');
-                }
-
                 $nombre = $this->request->getPost('nombre_completo');
                 if (empty($nombre)) {
-                    $this->flash->error("El nombre no puede estar vacío.");
+                    $this->flash->error("El nombre es obligatorio.");
                     return $this->response->redirect('hola/index');
                 }
                 
@@ -35,204 +24,139 @@ class HolaController extends ControllerBase
                 $alumno->nombre = $nombre;
 
                 if ($alumno->save()) {
-                    $this->flash->success("¡Genial! " . $nombre . " se guardó correctamente.");
+                    $this->flash->success("Alumno guardado correctamente.");
                     return $this->response->redirect('hola/lista');
                 } else {
-                    $errores = "";
-                    foreach ($alumno->getMessages() as $message) { $errores .= $message . " "; }
-                    $this->flash->error("Error: " . $errores);
+                    $this->flash->error("Error al guardar.");
                     return $this->response->redirect('hola/index');
                 }
             } catch (\Exception $e) {
-                die("DETALLE DEL FALLO CRÍTICO: " . $e->getMessage());
+                die("Error: " . $e->getMessage());
             }
         }
     }
 
     public function listaAction()
     {
-        date_default_timezone_set('America/Mexico_City');
-        $this->view->alumnos = Alumnos::find(["order" => "fecha_registro DESC"]);
+        // Carga solo la vista
     }
 
-    // --- NUEVO: Acción para Editar vía Fetch API (JSON) ---
-    public function editarAction()
+    // --- API JSON ---
+    public function buscarAction()
     {
-        $this->view->disable(); // No necesitamos vista, solo JSON
+        $this->view->disable();
         $response = new Response();
-        $response->setContentType('application/json');
+        $response->setContentType('application/json', 'UTF-8');
 
-        if ($this->request->isPost()) { // Fetch usa POST o PUT
-            // Leemos el JSON que envía Javascript
+        if ($this->request->isPost()) {
             $json = $this->request->getJsonRawBody();
             
-            $id = $json->id;
-            $nuevoNombre = $json->nombre;
+            $texto = $json->texto ?? '';
+            $fInicio = $json->fInicio ?? '';
+            $fFin = $json->fFin ?? '';
+            $orden = $json->orden ?? 'fecha_desc';
 
-            if (!$id || empty($nuevoNombre)) {
-                return $response->setJsonContent(['status' => 'error', 'msg' => 'Datos incompletos']);
+            $conditions = [];
+            $bind = [];
+
+            // 1. Buscador (ILIKE para Postgres = insensible a mayúsculas)
+            if (!empty($texto)) {
+                $conditions[] = "nombre ILIKE :texto:";
+                $bind['texto'] = '%' . $texto . '%';
             }
 
-            $alumno = Alumnos::findFirstById($id);
-            if ($alumno) {
-                $alumno->nombre = $nuevoNombre;
-                if ($alumno->save()) {
-                    return $response->setJsonContent(['status' => 'success', 'msg' => 'Actualizado correctamente']);
+            // 2. Rango de Fechas
+            if (!empty($fInicio)) {
+                $conditions[] = "DATE(fecha_registro) >= :inicio:";
+                $bind['inicio'] = $fInicio;
+            }
+            if (!empty($fFin)) {
+                $conditions[] = "DATE(fecha_registro) <= :fin:";
+                $bind['fin'] = $fFin;
+            }
+
+            // 3. Ordenamiento
+            switch ($orden) {
+                case 'nombre_asc': $orderBy = "nombre ASC"; break;
+                case 'nombre_desc': $orderBy = "nombre DESC"; break;
+                case 'fecha_asc': $orderBy = "fecha_registro ASC"; break;
+                case 'fecha_desc': 
+                default: $orderBy = "fecha_registro DESC"; break;
+            }
+
+            $parametros = ['order' => $orderBy];
+            if (count($conditions) > 0) {
+                $parametros['conditions'] = implode(' AND ', $conditions);
+                $parametros['bind'] = $bind;
+            }
+
+            $alumnos = Alumnos::find($parametros);
+            
+            $data = [];
+            date_default_timezone_set('America/Mexico_City');
+
+            foreach ($alumnos as $alumno) {
+                // Formateo seguro de fecha - SOLO FECHA
+                $fechaStr = "---";
+                if (!empty($alumno->fecha_registro)) {
+                    $timestamp = strtotime($alumno->fecha_registro);
+                    if ($timestamp) {
+                        $fechaStr = date('d/m/Y', $timestamp); // Solo fecha (dd/mm/aaaa)
+                    }
                 }
+
+                $data[] = [
+                    'id' => $alumno->id,
+                    'nombre' => $alumno->nombre,
+                    'fecha' => $fechaStr,
+                    'fecha_original' => $alumno->fecha_registro // Para ordenamiento
+                ];
             }
-            return $response->setJsonContent(['status' => 'error', 'msg' => 'No se pudo actualizar']);
+
+            return $response->setJsonContent(['status' => 'success', 'data' => $data]);
         }
     }
 
-    // --- MODIFICADO: Acción Eliminar compatible con Fetch API ---
+    public function editarAction()
+    {
+        $this->view->disable();
+        $response = new Response();
+        $response->setContentType('application/json', 'UTF-8');
+
+        if ($this->request->isPost()) {
+            $json = $this->request->getJsonRawBody();
+            $alumno = Alumnos::findFirstById($json->id);
+            if ($alumno) {
+                $alumno->nombre = $json->nombre;
+                if ($alumno->save()) {
+                    return $response->setJsonContent(['status' => 'success']);
+                }
+            }
+            return $response->setJsonContent(['status' => 'error']);
+        }
+    }
+
     public function eliminarAction($id)
     {
         $alumno = Alumnos::findFirstById($id);
         
-        // Verificamos si la petición pide JSON (Fetch)
         if ($this->request->isAjax() || $this->request->getHeader('Accept') === 'application/json') {
             $this->view->disable();
             $response = new Response();
-            $response->setContentType('application/json');
-
+            $response->setContentType('application/json', 'UTF-8');
+            
             if ($alumno && $alumno->delete()) {
                 return $response->setJsonContent(['status' => 'success']);
-            } else {
-                return $response->setJsonContent(['status' => 'error']);
             }
+            return $response->setJsonContent(['status' => 'error']);
         }
 
-        // Fallback tradicional (por si acaso)
-        if ($alumno) {
-            $alumno->delete();
-            $this->flash->success("Eliminado correctamente.");
-        }
+        if ($alumno) $alumno->delete();
         return $this->response->redirect('hola/lista');
     }
 
-    public function formularioAction() { }
-    
-    // Tus rutas de error se quedan igual
-    public function error404Action() { return $this->dispatcher->forward(['controller'=>'errors','action'=>'show404']); }
-    public function error500Action() { return $this->dispatcher->forward(['controller'=>'errors','action'=>'show500']); }
+    public function formularioAction() {}
+    public function error404Action() {}
+    public function error500Action() {}
 }
 
-
-
-
-
-/* use App\Models\Alumnos;
-
-/**
- * @property \Phalcon\Http\Request $request
- * @property \Phalcon\Flash\Direct $flash
- * @property \Phalcon\Http\Response $response
- * @property \Phalcon\Mvc\Url $url
- * @property \Phalcon\Mvc\View $view
- */
-/*class HolaController extends ControllerBase
-{
-    public function indexAction()
-    {
-        // Solo muestra el formulario
-        $this->view->imagenes_db = Carrusel::find();
-    }
-
-    public function guardarAction()
-    {
-        if ($this->request->isPost()) {
-            try {
-                // 1. RECAPTCHA
-                $recaptchaResponse = $this->request->getPost('g-recaptcha-response');
-                $secretKey = "6Ld1KEosAAAAAH9u1ZO12TlbVCgf4TFefVXzWak8";
-
-                $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$recaptchaResponse}");
-                $responseData = json_decode($verify);
-                
-                if (!$responseData->success) {
-                    $this->flash->error("Por favor, confirma que no eres un robot.");
-                    return $this->response->redirect('hola/index');
-                }
-
-                // 2. BASE DE DATOS
-                $nombre = $this->request->getPost('nombre_completo');
-
-                if (empty($nombre)) {
-                    $this->flash->error("El nombre no puede estar vacío.");
-                    return $this->response->redirect('hola/index');
-                }
-                
-                $alumno = new Alumnos();
-                $alumno->nombre = $nombre;
-
-                if ($alumno->save()) {
-                    $this->flash->success("¡Genial! " . $nombre . " se guardó correctamente.");
-                    return $this->response->redirect('hola/lista');
-                } else {
-                    $errores = "";
-                    foreach ($alumno->getMessages() as $message) {
-                        $errores .= $message . " ";
-                    }
-                    $this->flash->error("Error: " . $errores);
-                    return $this->response->redirect('hola/index');
-                }
-
-            } catch (\Exception $e) {
-                die("DETALLE DEL FALLO CRÍTICO: " . $e->getMessage());
-            }
-        }
-    }
-
-    public function listaAction()
-    {
-        // Ajustamos la zona horaria para la consulta
-        date_default_timezone_set('America/Mexico_City');
-        
-        $this->view->alumnos = Alumnos::find([
-            "order" => "fecha_registro DESC"
-        ]);
-    }
-
-    public function eliminarAction($id)
-    {
-        // Buscamos el registro por su ID
-        $alumno = Alumnos::findFirstById($id);
-
-        if (!$alumno) {
-            $this->flash->error("El alumno no existe en la base de datos.");
-            return $this->response->redirect('hola/lista');
-        }
-
-        // Ejecutamos la eliminación
-        if ($alumno->delete()) {
-            $this->flash->success("Tripulante eliminado de la órbita correctamente.");
-        } else {
-            $this->flash->error("No se pudo eliminar el registro.");
-        }
-
-        return $this->response->redirect('hola/lista');
-    }
-
-    
-    public function formularioAction() { } // Solo muestra la vista  
-
-    // Rutas de prueba para errores
-
-   /* public function error404Action() 
-    {
-        // Forzamos el despacho a una ruta inexistente
-        return $this->dispatcher->forward([
-            'controller' => 'errors',
-            'action'     => 'show404'
-        ]);
-    }
-
-    public function error500Action()
-    {
-        // Forzamos el despacho a la vista del error 500
-        return $this->dispatcher->forward([
-            'controller' => 'errors',
-            'action'     => 'show500'
-        ]);
-    }
-} */

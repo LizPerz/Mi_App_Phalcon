@@ -1,5 +1,6 @@
 <?php
-namespace App\Models; // Esta línea es vital
+namespace App\Models;
+
 use Phalcon\Mvc\Model;
 
 class Alumnos extends Model
@@ -10,8 +11,13 @@ class Alumnos extends Model
 
     public function initialize()
     {
-        // Esto le dice a Phalcon que use la tabla 'alumnos'
         $this->setSchema("public");
         $this->setSource("alumnos");
+    }
+
+    public function beforeCreate()
+    {
+        date_default_timezone_set('America/Mexico_City');
+        $this->fecha_registro = date('Y-m-d H:i:s');
     }
 }

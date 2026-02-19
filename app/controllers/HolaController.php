@@ -10,6 +10,12 @@ class HolaController extends ControllerBase
         // $this->view->imagenes_db = \App\Models\Carrusel::find(); 
     }
 
+    public function registroAction()
+    {
+        // Esta función vacía es necesaria para que cargue views/hola/registro.phtml
+    }
+    
+
     public function guardarAction()
     {
         if ($this->request->isPost()) {
@@ -154,6 +160,65 @@ class HolaController extends ControllerBase
         if ($alumno) $alumno->delete();
         return $this->response->redirect('hola/lista');
     }
+    
+
+
+
+    public function guardarJsonAction()
+{
+    $this->view->disable();
+    $response = new Response();
+    $response->setContentType('application/json', 'UTF-8');
+
+    if ($this->request->isPost()) {
+        $json = $this->request->getJsonRawBody();
+        $nombre = $json->nombre_completo ?? '';
+
+        if (empty($nombre)) {
+            return $response->setJsonContent([
+                'status' => 'error',
+                'mensaje' => 'El nombre es obligatorio'
+            ]);
+        }
+
+        if (!preg_match('/^[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+$/', $nombre)) {
+            return $response->setJsonContent([
+                'status' => 'error',
+                'mensaje' => 'Solo se permiten letras y espacios'
+            ]);
+        }
+
+        if (strlen($nombre) > 35) {
+            return $response->setJsonContent([
+                'status' => 'error',
+                'mensaje' => 'Máximo 35 caracteres'
+            ]);
+        }
+
+        $alumno = new Alumnos();
+        $alumno->nombre = $nombre;
+
+        if ($alumno->save()) {
+            return $response->setJsonContent([
+                'status' => 'success',
+                'mensaje' => 'Alumno guardado correctamente'
+            ]);
+        } else {
+            return $response->setJsonContent([
+                'status' => 'error',
+                'mensaje' => 'Error al guardar en la base de datos'
+            ]);
+        }
+    }
+
+    return $response->setJsonContent([
+        'status' => 'error',
+        'mensaje' => 'Método no permitido'
+    ]);
+}
+
+
+
 
     public function formularioAction() {}
     public function error404Action() {}

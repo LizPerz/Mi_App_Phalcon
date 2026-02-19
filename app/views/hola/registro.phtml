@@ -126,11 +126,20 @@
                 <p id="adv_nombre" style="display:none;" class="text-red-400 text-xs font-bold mt-2 text-left ml-2">⚠️ Solo se permiten letras y espacios (máx. 35 caracteres)</p>
             </div>
 
-            <button type="submit" id="btnGuardar"
-                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/30 flex justify-center items-center gap-2 text-lg transform active:scale-[0.98]">
-                <i data-lucide="save" class="w-5 h-5"></i>
-                <span id="btnTexto">Guardar Alumno</span>
-            </button>
+            <div class="flex gap-3">
+                <a href="<?= $this->url->get('hola/lista') ?>" 
+                   class="w-1/2 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-2xl transition-all shadow-lg flex justify-center items-center gap-2 text-lg">
+                    <i data-lucide="x-circle" class="w-5 h-5"></i>
+                    Cancelar
+                </a>
+
+                <button type="submit" id="btnGuardar"
+                        class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/30 flex justify-center items-center gap-2 text-lg transform active:scale-[0.98]">
+                    <i data-lucide="save" class="w-5 h-5"></i>
+                    <span id="btnTexto">Guardar</span>
+                </button>
+            </div>
+
         </form>
 
     </div>
@@ -143,7 +152,6 @@
         </div>
         <h3 class="text-2xl font-black text-white mb-2">¡REGISTRO EXITOSO!</h3>
         <p class="text-slate-300 mb-6">Alumno guardado correctamente.<br>Redirigiendo...</p>
-        
     </div>
 </div>
 
@@ -390,10 +398,10 @@
                 <p id="adv_nombre" style="display:none;" class="text-red-400 text-xs font-bold mt-2 text-left ml-2">⚠️ Solo se permiten letras y espacios (máx. 35 caracteres)</p>
             </div>
 
-            <button type="submit"
+            <button type="submit" id="btnGuardar"
                     class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/30 flex justify-center items-center gap-2 text-lg transform active:scale-[0.98]">
                 <i data-lucide="save" class="w-5 h-5"></i>
-                Guardar Alumno
+                <span id="btnTexto">Guardar Alumno</span>
             </button>
         </form>
 
@@ -407,6 +415,7 @@
         </div>
         <h3 class="text-2xl font-black text-white mb-2">¡REGISTRO EXITOSO!</h3>
         <p class="text-slate-300 mb-6">Alumno guardado correctamente.<br>Redirigiendo...</p>
+        
     </div>
 </div>
 
@@ -455,6 +464,9 @@
     function guardarAlumno() {
         const nombre = document.getElementById('nombre_completo').value.trim();
         const advertencia = document.getElementById('adv_nombre');
+        const btn = document.getElementById('btnGuardar');
+        const btnTexto = document.getElementById('btnTexto');
+        const originalBtnContent = btn.innerHTML; 
 
         if(nombre === '') {
             advertencia.style.display = 'block';
@@ -476,6 +488,11 @@
         }
 
         advertencia.style.display = 'none';
+
+       
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Guardando...';
+        lucide.createIcons(); 
 
         fetch("<?= $this->url->get('hola/guardar') ?>", {
             method: 'POST',
@@ -501,6 +518,10 @@
             console.error('Error:', err);
             document.getElementById('textoError').innerText = 'Error de conexión con el servidor';
             document.getElementById('modalError').classList.remove('hidden');
+            
+            btn.disabled = false;
+            btn.innerHTML = originalBtnContent;
+            lucide.createIcons();
         });
     }
 
@@ -512,5 +533,4 @@
         document.getElementById('modalError').classList.add('hidden');
     }
 </script>
-
  -->
